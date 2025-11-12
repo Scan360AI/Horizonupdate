@@ -839,37 +839,169 @@ class PDFGenerator {
   }
 
   // ===========================
+  // CUSTOM NOTE GENERATION HELPERS
+  // ===========================
+
+  // Generate SWOT Analysis matrix (2x2 grid)
+  generateSWOTAnalysis() {
+    if (!this.data.executiveSummary) return '';
+
+    const strengths = this.data.executiveSummary.strengths || [];
+    const weaknesses = this.data.executiveSummary.weaknesses || [];
+
+    // Deriva opportunities e threats dai dati disponibili
+    const opportunities = [];
+    const threats = [];
+
+    if (this.data.outlook && this.data.outlook.raccomandazioni) {
+      // Le raccomandazioni positive sono opportunità
+      this.data.outlook.raccomandazioni.forEach(r => {
+        if (r.includes('miglioramento') || r.includes('rafforzamento') || r.includes('opportunità')) {
+          opportunities.push(r);
+        } else {
+          // Le altre sono threat/warning da gestire
+          threats.push(r);
+        }
+      });
+    }
+
+    // Se non ci sono abbastanza opportunities/threats, aggiungi generici
+    if (opportunities.length === 0) {
+      opportunities.push('Potenziale di crescita del mercato IT');
+      opportunities.push('Espansione della base clienti');
+    }
+
+    if (threats.length === 0) {
+      threats.push('Alta competitività del settore');
+      threats.push('Dipendenza dalla congiuntura economica');
+    }
+
+    // Limita a 4 elementi per quadrante
+    const limitedStrengths = strengths.slice(0, 4);
+    const limitedWeaknesses = weaknesses.slice(0, 4);
+    const limitedOpportunities = opportunities.slice(0, 4);
+    const limitedThreats = threats.slice(0, 4);
+
+    let html = '<div class="no-page-break" style="margin: 2rem 0;">';
+    html += '<h3 style="font-size: 16pt; font-weight: 700; color: #1A1F36; margin: 0 0 1.5rem 0; text-align: center; letter-spacing: -0.02em;">Analisi SWOT</h3>';
+
+    // Grid 2x2
+    html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">';
+
+    // STRENGTHS (top-left) - Green
+    html += '<div style="background: linear-gradient(135deg, rgba(0, 217, 36, 0.08) 0%, rgba(0, 217, 36, 0.02) 100%); border: 2px solid rgba(0, 217, 36, 0.3); border-radius: 12px; padding: 1.5rem;">';
+    html += '<h4 style="font-size: 11pt; font-weight: 700; color: #00D924; margin: 0 0 1rem 0; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center;"><span style="font-size: 14pt; margin-right: 0.5rem;">💪</span> Strengths</h4>';
+    html += '<ul style="margin: 0; padding-left: 1.25rem; list-style: disc; color: #1A1F36; font-size: 9pt; line-height: 1.5;">';
+    limitedStrengths.forEach(s => {
+      html += '<li style="margin-bottom: 0.5rem;">' + s + '</li>';
+    });
+    html += '</ul></div>';
+
+    // WEAKNESSES (top-right) - Red
+    html += '<div style="background: linear-gradient(135deg, rgba(223, 27, 65, 0.08) 0%, rgba(223, 27, 65, 0.02) 100%); border: 2px solid rgba(223, 27, 65, 0.3); border-radius: 12px; padding: 1.5rem;">';
+    html += '<h4 style="font-size: 11pt; font-weight: 700; color: #DF1B41; margin: 0 0 1rem 0; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center;"><span style="font-size: 14pt; margin-right: 0.5rem;">⚠️</span> Weaknesses</h4>';
+    html += '<ul style="margin: 0; padding-left: 1.25rem; list-style: disc; color: #1A1F36; font-size: 9pt; line-height: 1.5;">';
+    limitedWeaknesses.forEach(w => {
+      html += '<li style="margin-bottom: 0.5rem;">' + w + '</li>';
+    });
+    html += '</ul></div>';
+
+    // OPPORTUNITIES (bottom-left) - Blue
+    html += '<div style="background: linear-gradient(135deg, rgba(99, 91, 255, 0.08) 0%, rgba(99, 91, 255, 0.02) 100%); border: 2px solid rgba(99, 91, 255, 0.3); border-radius: 12px; padding: 1.5rem;">';
+    html += '<h4 style="font-size: 11pt; font-weight: 700; color: #635BFF; margin: 0 0 1rem 0; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center;"><span style="font-size: 14pt; margin-right: 0.5rem;">🎯</span> Opportunities</h4>';
+    html += '<ul style="margin: 0; padding-left: 1.25rem; list-style: disc; color: #1A1F36; font-size: 9pt; line-height: 1.5;">';
+    limitedOpportunities.forEach(o => {
+      html += '<li style="margin-bottom: 0.5rem;">' + o + '</li>';
+    });
+    html += '</ul></div>';
+
+    // THREATS (bottom-right) - Orange
+    html += '<div style="background: linear-gradient(135deg, rgba(255, 176, 32, 0.08) 0%, rgba(255, 176, 32, 0.02) 100%); border: 2px solid rgba(255, 176, 32, 0.3); border-radius: 12px; padding: 1.5rem;">';
+    html += '<h4 style="font-size: 11pt; font-weight: 700; color: #FFB020; margin: 0 0 1rem 0; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center;"><span style="font-size: 14pt; margin-right: 0.5rem;">⚡</span> Threats</h4>';
+    html += '<ul style="margin: 0; padding-left: 1.25rem; list-style: disc; color: #1A1F36; font-size: 9pt; line-height: 1.5;">';
+    limitedThreats.forEach(t => {
+      html += '<li style="margin-bottom: 0.5rem;">' + t + '</li>';
+    });
+    html += '</ul></div>';
+
+    html += '</div></div>';
+
+    return html;
+  }
+
+  // Generate complete Executive Summary section
+  generateExecutiveSummarySection() {
+    let html = '';
+
+    // Titolo sezione
+    html += '<div class="page-break-after" style="padding: 2rem;">';
+    html += '<h2 style="font-size: 20pt; font-weight: 700; color: #635BFF; margin: 0 0 2rem 0; padding-bottom: 1rem; border-bottom: 3px solid #635BFF; letter-spacing: -0.02em;">Executive Summary</h2>';
+
+    // Key Metrics boxes
+    html += this.generateKeyMetricsBoxes();
+
+    // SWOT Analysis
+    html += this.generateSWOTAnalysis();
+
+    html += '</div>';
+
+    return html;
+  }
+
+  // ===========================
   // BACKWARD COMPATIBILITY
   // Legacy method for custom note generation
   // ===========================
 
   async generateCustomNote(noteContent, title, chartImages = null) {
-    const noteTitle = title || 'Nota Tecnica';
+    const noteTitle = title || 'Nota Finanziaria';
 
     try {
       await this.loadLogo();
 
+      // Costruisci HTML con nuovo layout professionale
       let htmlContent = '<html><head>' +
         '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">' +
         '<style>' + this.getStylesheet() + '</style>' +
-        '</head><body>';
+        '</head><body>' +
+        '<div class="report-container">';
 
-      htmlContent += '<div style="text-align: center; margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 2px solid #635BFF;">';
+      // ===== 1. COVER PAGE =====
+      htmlContent += this.generateCoverPage(this.getFormattedDate());
 
-      if (this.logoBase64) {
-        htmlContent += '<img src="' + this.logoBase64 + '" alt="Logo" style="width: 100px; height: auto; margin-bottom: 1rem;">';
-      }
+      // ===== 2. EXECUTIVE SUMMARY (Metrics + SWOT) =====
+      htmlContent += this.generateExecutiveSummarySection();
 
-      htmlContent += '<h1 style="font-size: 22pt; font-weight: 700; color: #635BFF; margin: 0; letter-spacing: -0.01em;">' + noteTitle + '</h1>';
-      htmlContent += '<div style="font-size: 10pt; color: #697386; margin-top: 0.75rem; font-weight: 500;">' + this.getFormattedDate() + '</div>';
+      // ===== 3. CONTENUTO AI-GENERATED =====
+      htmlContent += '<div class="page-break-before" style="padding: 2rem;">';
+      htmlContent += '<h2 style="font-size: 20pt; font-weight: 700; color: #635BFF; margin: 0 0 2rem 0; padding-bottom: 1rem; border-bottom: 3px solid #635BFF; letter-spacing: -0.02em;">' + noteTitle + '</h2>';
+      htmlContent += this.markdownToHTML(noteContent);
       htmlContent += '</div>';
 
-      htmlContent += '<div style="padding: 0 2rem;">';
-      htmlContent += this.markdownToHTML(noteContent);
+      // ===== 4. DATI FINANZIARI (Conto Economico + Stato Patrimoniale) =====
+      htmlContent += '<div class="page-break-before" style="padding: 2rem;">';
+      htmlContent += '<h2 style="font-size: 20pt; font-weight: 700; color: #635BFF; margin: 0 0 2rem 0; padding-bottom: 1rem; border-bottom: 3px solid #635BFF; letter-spacing: -0.02em;">Dati Finanziari</h2>';
 
-      // Aggiungi grafici se disponibili
+      htmlContent += this.generateContoEconomicoTable();
+      htmlContent += this.generateStatoPatrimonialeTable();
+
+      htmlContent += '</div>';
+
+      // ===== 5. PROFILI DI RISCHIO (con barre di avanzamento) =====
+      if (this.data.profiles && this.data.profiles.length > 0) {
+        htmlContent += '<div class="page-break-before" style="padding: 2rem;">';
+        htmlContent += '<h2 style="font-size: 20pt; font-weight: 700; color: #635BFF; margin: 0 0 2rem 0; padding-bottom: 1rem; border-bottom: 3px solid #635BFF; letter-spacing: -0.02em;">Analisi del Rischio</h2>';
+
+        htmlContent += this.generateRiskBox();
+        htmlContent += this.generateRiskProfilesBars();
+
+        htmlContent += '</div>';
+      }
+
+      // ===== 6. GRAFICI DI SUPPORTO =====
       if (chartImages && Object.keys(chartImages).length > 0) {
-        htmlContent += '<h2 style="font-size: 18pt; font-weight: 700; color: #1A1F36; margin: 3rem 0 1.5rem 0; padding-top: 2rem; border-top: 2px solid #E3E8EE; letter-spacing: -0.02em;">Grafici di Supporto</h2>';
+        htmlContent += '<div class="page-break-before" style="padding: 2rem;">';
+        htmlContent += '<h2 style="font-size: 20pt; font-weight: 700; color: #635BFF; margin: 0 0 2rem 0; padding-bottom: 1rem; border-bottom: 3px solid #635BFF; letter-spacing: -0.02em;">Grafici di Supporto</h2>';
 
         if (chartImages.economicTrend) {
           htmlContent += this.wrapChartInContainer(chartImages.economicTrend, 'Trend Economico 2022-2024');
@@ -886,24 +1018,45 @@ class PDFGenerator {
         if (chartImages.benchmarkRadar) {
           htmlContent += this.wrapChartInContainer(chartImages.benchmarkRadar, 'Benchmark Settoriale');
         }
+
+        htmlContent += '</div>';
       }
 
-      htmlContent += '</div>';
-      htmlContent += '</body></html>';
+      htmlContent += '</div></body></html>';
 
+      // Crea elemento temporaneo per il rendering
       const tempDiv = document.createElement('div');
       tempDiv.style.cssText = 'position: absolute; left: -9999px; top: 0;';
       tempDiv.innerHTML = htmlContent;
       document.body.appendChild(tempDiv);
 
-      const filename = 'nota-tecnica-' + this.getCurrentDate() + '.pdf';
+      const companyNameSlug = this.data.company.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      const filename = 'nota-' + companyNameSlug + '-' + this.getCurrentDate() + '.pdf';
 
+      // Configura html2pdf con impostazioni ottimizzate
       const opt = {
-        margin: [15, 15, 15, 15],
+        margin: [20, 15, 20, 15],
         filename: filename,
-        image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          letterRendering: true,
+          allowTaint: true
+        },
+        jsPDF: {
+          unit: 'mm',
+          format: 'a4',
+          orientation: 'portrait',
+          compress: true
+        },
+        pagebreak: {
+          mode: ['avoid-all', 'css', 'legacy'],
+          before: '.page-break-before',
+          after: '.page-break-after',
+          avoid: '.no-page-break'
+        }
       };
 
       await html2pdf().set(opt).from(tempDiv.firstChild).save();
