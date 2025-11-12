@@ -735,7 +735,7 @@ Usa formato Markdown (##, **, -, ecc.)`;
       this.addMessage('bot', '📄 **Generazione PDF finale...**');
 
       const pdfGen = new PDFGenerator(this.financialData);
-      await pdfGen.generateCustomNote(fullContent, reportTitle, chartImages);
+      await pdfGen.generateProfessionalReport(fullContent, chartImages);
 
       this.addMessage('bot', `✅ **Report Completo generato con successo!**\n\nIl report AI-powered "${reportTitle}" è stato scaricato con ${predefinedIndex.length} sezioni complete:\n\n${predefinedIndex.map((s, i) => `${i+1}. ${s}`).join('\n')}`);
 

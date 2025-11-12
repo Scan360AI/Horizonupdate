@@ -355,46 +355,696 @@ class PDFGenerator {
     pdfMake.createPdf(docDefinition).download(`nota-${safeTitle}-${this.getCurrentDate()}.pdf`);
   }
 
-  // ============================================
-  // SEZIONI REPORT COMPLETO
-  // ============================================
+  /**
+   * Genera Report Completo Professionale con cover page elegante, tabelle JSON e box visivi
+   */
+  async generateProfessionalReport(aiSections, chartImages = null) {
+    if (!this.data) {
+      alert('Dati finanziari non disponibili');
+      return;
+    }
 
-  generateCoverPage() {
+    this.logoBase64 = await this.loadLogo();
+
+    const docDefinition = {
+      info: {
+        title: `Report Finanziario Completo - ${this.data.company.name}`,
+        author: 'Horizon Financial Monitor',
+        creator: 'Horizon Financial Monitor - AI Assistant',
+        subject: 'Analisi Finanziaria Completa'
+      },
+      pageSize: 'A4',
+      pageMargins: [50, 70, 50, 70],
+
+      header: (currentPage, pageCount) => {
+        if (currentPage === 1) return null; // No header on cover
+        return {
+          margin: [50, 25, 50, 0],
+          columns: [
+            {
+              text: 'Report Finanziario Completo',
+              fontSize: 9,
+              color: '#94a3b8'
+            },
+            {
+              text: this.data.company.name,
+              fontSize: 9,
+              color: '#94a3b8',
+              alignment: 'right'
+            }
+          ]
+        };
+      },
+
+      footer: (currentPage, pageCount) => {
+        if (currentPage === 1) return null; // No footer on cover
+        return {
+          margin: [50, 0, 50, 25],
+          columns: [
+            {
+              text: `Generato il ${new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}`,
+              fontSize: 8,
+              color: '#94a3b8'
+            },
+            {
+              text: `Pagina ${currentPage - 1} di ${pageCount - 1}`,
+              fontSize: 8,
+              color: '#94a3b8',
+              alignment: 'right'
+            }
+          ]
+        };
+      },
+
+      content: [
+        // 🎨 COVER PAGE ELEGANTE
+        ...this.generateElegantCover(),
+
+        // Page break dopo cover
+        { text: '', pageBreak: 'after' },
+
+        // 📊 CONTENUTO REPORT
+        ...this.buildReportContent(aiSections, chartImages)
+      ],
+
+      styles: {
+        coverTitle: {
+          fontSize: 32,
+          bold: true,
+          color: '#1e293b',
+          margin: [0, 0, 0, 12]
+        },
+        coverSubtitle: {
+          fontSize: 20,
+          color: '#64748b',
+          margin: [0, 0, 0, 8]
+        },
+        coverDate: {
+          fontSize: 14,
+          color: '#94a3b8',
+          margin: [0, 0, 0, 0]
+        },
+        h1: {
+          fontSize: 26,
+          bold: true,
+          color: '#1e293b',
+          margin: [0, 24, 0, 16],
+          decoration: 'underline',
+          decorationStyle: 'solid',
+          decorationColor: '#3b82f6'
+        },
+        h2: {
+          fontSize: 19,
+          bold: true,
+          color: '#0f172a',
+          margin: [0, 20, 0, 12],
+          fillColor: '#f1f5f9'
+        },
+        h3: {
+          fontSize: 15,
+          bold: true,
+          color: '#334155',
+          margin: [0, 14, 0, 10]
+        },
+        tableHeader: {
+          bold: true,
+          fontSize: 11,
+          color: 'white',
+          fillColor: '#3b82f6',
+          alignment: 'left'
+        },
+        normal: {
+          fontSize: 11,
+          lineHeight: 1.6,
+          color: '#334155'
+        },
+        boxTitle: {
+          fontSize: 13,
+          bold: true,
+          color: '#1e293b',
+          margin: [0, 0, 0, 10]
+        },
+        boxContent: {
+          fontSize: 11,
+          lineHeight: 1.5,
+          color: '#334155'
+        }
+      },
+
+      defaultStyle: {
+        font: 'Roboto',
+        fontSize: 11,
+        lineHeight: 1.6,
+        color: '#1e293b'
+      }
+    };
+
+    // Download PDF
+    const fileName = `report-completo-${this.data.company.name.toLowerCase().replace(/\s/g, '-')}-${this.getCurrentDate()}.pdf`;
+    pdfMake.createPdf(docDefinition).download(fileName);
+  }
+
+  /**
+   * Genera Cover Page elegante
+   */
+  generateElegantCover() {
+    const currentDate = new Date();
+    const monthYear = currentDate.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+
     return [
-      this.logoBase64 ? { image: this.logoBase64, width: 150, margin: [0, 60, 0, 40] } : {},
-      { text: 'REPORT FINANZIARIO', style: 'coverTitle', alignment: 'center' },
-      { text: this.data.company.name, style: 'coverSubtitle', alignment: 'center' },
-      { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 2, lineColor: '#2f3e9e' }], margin: [0, 40, 0, 40] },
-      { text: 'ANALISI FINANZIARIA COMPLETA', fontSize: 14, bold: true, alignment: 'center', margin: [0, 0, 0, 60] },
+      // Spacing top
+      { text: '', margin: [0, 80, 0, 0] },
+
+      // Logo centrato
+      this.logoBase64
+        ? {
+            image: this.logoBase64,
+            width: 160,
+            alignment: 'center',
+            margin: [0, 0, 0, 50]
+          }
+        : { text: '', margin: [0, 0, 0, 30] },
+
+      // Titolo principale
+      {
+        text: 'REPORT FINANZIARIO\nCOMPLETO',
+        style: 'coverTitle',
+        alignment: 'center',
+        lineHeight: 1.2
+      },
+
+      // Nome azienda
+      {
+        text: this.data.company.name,
+        style: 'coverSubtitle',
+        alignment: 'center'
+      },
+
+      // Data
+      {
+        text: monthYear.charAt(0).toUpperCase() + monthYear.slice(1),
+        style: 'coverDate',
+        alignment: 'center',
+        margin: [0, 0, 0, 40]
+      },
+
+      // Decorazione - box con rating
+      {
+        table: {
+          widths: ['*'],
+          body: [
+            [
+              {
+                stack: [
+                  {
+                    text: 'RATING',
+                    fontSize: 11,
+                    color: '#64748b',
+                    margin: [0, 0, 0, 8],
+                    alignment: 'center'
+                  },
+                  {
+                    text: this.data.riskAssessment.rating,
+                    fontSize: 36,
+                    bold: true,
+                    color: this.getRatingColor(),
+                    alignment: 'center',
+                    margin: [0, 0, 0, 5]
+                  },
+                  {
+                    text: this.data.riskAssessment.categoryLabel,
+                    fontSize: 13,
+                    color: '#64748b',
+                    alignment: 'center'
+                  }
+                ],
+                border: [false, false, false, false],
+                margin: [20, 20, 20, 20]
+              }
+            ]
+          ]
+        },
+        layout: {
+          hLineWidth: () => 2,
+          vLineWidth: () => 2,
+          hLineColor: () => '#3b82f6',
+          vLineColor: () => '#3b82f6',
+          paddingTop: () => 15,
+          paddingBottom: () => 15
+        },
+        margin: [80, 0, 80, 60]
+      },
+
+      // Footer cover
       {
         columns: [
           {
             width: '*',
-            stack: [
-              { text: 'Data Report:', style: 'coverInfo', bold: true },
-              { text: this.data.reportInfo.date, style: 'coverInfo' },
-              { text: '', margin: [0, 10, 0, 0] },
-              { text: 'Settore:', style: 'coverInfo', bold: true },
-              { text: this.data.company.ateco, style: 'coverInfo' },
-              { text: '', margin: [0, 10, 0, 0] },
-              { text: 'Rating:', style: 'coverInfo', bold: true },
-              { text: `${this.data.riskAssessment.rating} - ${this.data.riskAssessment.categoryLabel}`, style: 'coverInfo', color: this.getRatingColor() }
+            text: [
+              { text: 'Settore: ', fontSize: 10, color: '#64748b' },
+              { text: this.data.company.ateco, fontSize: 10, color: '#334155', bold: true }
             ]
           },
           {
             width: '*',
-            stack: [
-              { text: 'Sede Legale:', style: 'coverInfo', bold: true },
-              { text: `${this.data.company.address.city}, ${this.data.company.address.province}`, style: 'coverInfo' },
-              { text: '', margin: [0, 10, 0, 0] },
-              { text: 'P.IVA:', style: 'coverInfo', bold: true },
-              { text: this.data.company.piva, style: 'coverInfo' },
-              { text: '', margin: [0, 10, 0, 0] },
-              { text: 'Dipendenti:', style: 'coverInfo', bold: true },
-              { text: this.data.company.employees.current.toString(), style: 'coverInfo' }
-            ]
+            text: [
+              { text: 'Dipendenti: ', fontSize: 10, color: '#64748b' },
+              { text: `${this.data.company.employees.current}`, fontSize: 10, color: '#334155', bold: true }
+            ],
+            alignment: 'right'
           }
-        ]
+        ],
+        margin: [0, 0, 0, 0]
+      }
+    ];
+  }
+
+  /**
+   * Costruisce il contenuto del report mescolando AI + JSON
+   */
+  buildReportContent(aiSections, chartImages) {
+    const content = [];
+
+    // Parse sections dal markdown AI
+    const sections = this.parseSections(aiSections);
+
+    sections.forEach((section) => {
+      const title = section.title;
+      const aiContent = section.content;
+
+      // Aggiungi titolo sezione
+      content.push({
+        text: title,
+        style: 'h1',
+        pageBreak: content.length > 0 ? 'before' : undefined
+      });
+
+      // Aggiungi contenuto AI parsato
+      content.push(...this.parseMarkdownToPDFContent(aiContent));
+
+      // Aggiungi elementi JSON specifici per sezione
+      switch (title.toLowerCase()) {
+        case 'executive summary':
+          content.push(...this.generateKeyMetricsBoxes());
+          break;
+
+        case 'analisi economica':
+          content.push(...this.generateContoEconomicoTable());
+          if (chartImages?.economicTrend) {
+            content.push({
+              image: chartImages.economicTrend,
+              width: 480,
+              alignment: 'center',
+              margin: [0, 20, 0, 20]
+            });
+          }
+          break;
+
+        case 'stato patrimoniale':
+          content.push(...this.generateStatoPatrimonialeTable());
+          if (chartImages?.workingCapital) {
+            content.push({
+              image: chartImages.workingCapital,
+              width: 480,
+              alignment: 'center',
+              margin: [0, 20, 0, 20]
+            });
+          }
+          break;
+
+        case 'indicatori finanziari':
+          if (chartImages?.debtSustainability) {
+            content.push({
+              image: chartImages.debtSustainability,
+              width: 480,
+              alignment: 'center',
+              margin: [0, 15, 0, 15]
+            });
+          }
+          if (chartImages?.stressTest) {
+            content.push({
+              image: chartImages.stressTest,
+              width: 480,
+              alignment: 'center',
+              margin: [0, 15, 0, 20]
+            });
+          }
+          break;
+
+        case 'risk assessment':
+          content.push(...this.generateRiskBox());
+          if (chartImages?.benchmarkRadar) {
+            content.push({
+              image: chartImages.benchmarkRadar,
+              width: 350,
+              alignment: 'center',
+              margin: [0, 20, 0, 20]
+            });
+          }
+          break;
+
+        case 'codice della crisi':
+          content.push(...this.generateCodiceCrisiBox());
+          break;
+      }
+
+      // Spacing tra sezioni
+      content.push({ text: '', margin: [0, 0, 0, 20] });
+    });
+
+    // Disclaimer finale
+    content.push(
+      { text: '', margin: [0, 40, 0, 0] },
+      {
+        stack: [
+          {
+            text: [
+              { text: '⚠️  ', fontSize: 12 },
+              { text: 'Disclaimer', bold: true, fontSize: 10 }
+            ],
+            margin: [0, 0, 0, 8],
+            color: '#64748b'
+          },
+          {
+            text: 'Questo documento è stato generato automaticamente da un assistente AI basato sui dati finanziari disponibili. Le informazioni contenute sono fornite a scopo informativo e non costituiscono consulenza finanziaria professionale.',
+            fontSize: 9,
+            color: '#64748b',
+            italics: true,
+            lineHeight: 1.4
+          }
+        ],
+        background: '#f8fafc',
+        fillColor: '#f8fafc',
+        margin: [0, 0, 0, 0]
+      }
+    );
+
+    return content;
+  }
+
+  /**
+   * Parse sections dal markdown AI
+   */
+  parseSections(markdown) {
+    const sections = [];
+    const lines = markdown.split('\n');
+    let currentSection = null;
+
+    lines.forEach((line) => {
+      // Rileva header H2 (## Titolo)
+      const h2Match = line.match(/^##\s+(.+)/);
+      if (h2Match) {
+        // Salva sezione precedente
+        if (currentSection) {
+          sections.push(currentSection);
+        }
+        // Inizia nuova sezione
+        currentSection = {
+          title: h2Match[1].trim(),
+          content: ''
+        };
+      } else if (currentSection) {
+        // Aggiungi contenuto alla sezione corrente
+        currentSection.content += line + '\n';
+      }
+    });
+
+    // Aggiungi ultima sezione
+    if (currentSection) {
+      sections.push(currentSection);
+    }
+
+    return sections;
+  }
+
+  /**
+   * Genera box metriche chiave per Executive Summary
+   */
+  generateKeyMetricsBoxes() {
+    const metrics = [
+      { label: 'Ricavi 2024', value: this.data.keyMetrics.find(m => m.id === 'revenues')?.value || 'N/D', trend: this.data.keyMetrics.find(m => m.id === 'revenues')?.trend?.value },
+      { label: 'EBITDA Margin', value: this.data.keyMetrics.find(m => m.id === 'ebitda-margin')?.value || 'N/D' },
+      { label: 'DSCR', value: this.data.keyMetrics.find(m => m.id === 'dscr')?.value || 'N/D' },
+      { label: 'Liquidità Corrente', value: this.data.keyMetrics.find(m => m.id === 'liquidity')?.value || 'N/D' }
+    ];
+
+    return [
+      { text: 'Principali Indicatori', style: 'h3', margin: [0, 20, 0, 15] },
+      {
+        columns: metrics.map(m => ({
+          width: '*',
+          stack: [
+            { text: m.label, fontSize: 9, color: '#64748b', margin: [0, 0, 0, 5] },
+            { text: m.value, fontSize: 16, bold: true, color: '#1e293b' },
+            m.trend ? { text: `${m.trend > 0 ? '↑' : '↓'} ${Math.abs(m.trend)}%`, fontSize: 9, color: m.trend > 0 ? '#10b981' : '#ef4444', margin: [0, 3, 0, 0] } : {}
+          ],
+          margin: [10, 10, 10, 10],
+          fillColor: '#f8fafc'
+        })),
+        columnGap: 10,
+        margin: [0, 0, 0, 20]
+      }
+    ];
+  }
+
+  /**
+   * Genera tabella Conto Economico completa
+   */
+  generateContoEconomicoTable() {
+    // Cerca i dati del conto economico nel JSON
+    const ce = this.data.noteTecniche?.find(n => n.title === 'Conto Economico');
+    if (!ce || !ce.contoEconomico) {
+      return [{ text: 'Dati Conto Economico non disponibili', fontSize: 10, color: '#64748b', margin: [0, 10, 0, 10] }];
+    }
+
+    const ricavi = ce.contoEconomico.ricavi || {};
+    const costi = ce.contoEconomico.costi || {};
+    const risultati = ce.contoEconomico.risultati || {};
+
+    // Calcola variazioni
+    const calcVariazione = (v2024, v2023) => {
+      if (!v2024 || !v2023 || v2023 === 0) return '-';
+      const delta = ((v2024 - v2023) / Math.abs(v2023)) * 100;
+      return `${delta > 0 ? '+' : ''}${delta.toFixed(1)}%`;
+    };
+
+    const tableData = [
+      // Header
+      [
+        { text: 'Voce', style: 'tableHeader' },
+        { text: '2023 (€)', style: 'tableHeader', alignment: 'right' },
+        { text: '2024 (€)', style: 'tableHeader', alignment: 'right' },
+        { text: 'Δ%', style: 'tableHeader', alignment: 'right' }
+      ],
+      // Ricavi
+      ['Ricavi delle vendite', ricavi['2023']?.toLocaleString('it-IT') || '-', ricavi['2024']?.toLocaleString('it-IT') || '-', calcVariazione(ricavi['2024'], ricavi['2023'])],
+      // Costi
+      ['Costi materie prime', costi.materiePrime?.['2023']?.toLocaleString('it-IT') || '-', costi.materiePrime?.['2024']?.toLocaleString('it-IT') || '-', calcVariazione(costi.materiePrime?.['2024'], costi.materiePrime?.['2023'])],
+      ['Costi per servizi', costi.servizi?.['2023']?.toLocaleString('it-IT') || '-', costi.servizi?.['2024']?.toLocaleString('it-IT') || '-', calcVariazione(costi.servizi?.['2024'], costi.servizi?.['2023'])],
+      ['Costi del personale', costi.personale?.['2023']?.toLocaleString('it-IT') || '-', costi.personale?.['2024']?.toLocaleString('it-IT') || '-', calcVariazione(costi.personale?.['2024'], costi.personale?.['2023'])],
+      ['Ammortamenti', costi.ammortamenti?.['2023']?.toLocaleString('it-IT') || '-', costi.ammortamenti?.['2024']?.toLocaleString('it-IT') || '-', calcVariazione(costi.ammortamenti?.['2024'], costi.ammortamenti?.['2023'])],
+      // Risultati
+      [{ text: 'EBITDA', bold: true }, { text: risultati.ebitda?.['2023']?.toLocaleString('it-IT') || '-', bold: true }, { text: risultati.ebitda?.['2024']?.toLocaleString('it-IT') || '-', bold: true, color: risultati.ebitda?.['2024'] < 0 ? '#ef4444' : '#10b981' }, { text: calcVariazione(risultati.ebitda?.['2024'], risultati.ebitda?.['2023']), bold: true }],
+      [{ text: 'Utile Netto', bold: true }, { text: risultati.utileNetto?.['2023']?.toLocaleString('it-IT') || '-', bold: true }, { text: risultati.utileNetto?.['2024']?.toLocaleString('it-IT') || '-', bold: true, color: risultati.utileNetto?.['2024'] < 0 ? '#ef4444' : '#10b981' }, { text: calcVariazione(risultati.utileNetto?.['2024'], risultati.utileNetto?.['2023']), bold: true }]
+    ];
+
+    return [
+      { text: 'Conto Economico', style: 'h3', margin: [0, 20, 0, 12] },
+      {
+        table: {
+          headerRows: 1,
+          widths: ['*', 'auto', 'auto', 'auto'],
+          body: tableData
+        },
+        layout: {
+          fillColor: (rowIndex) => (rowIndex === 0 ? '#3b82f6' : rowIndex % 2 === 0 ? '#f8fafc' : null),
+          hLineWidth: () => 0.5,
+          vLineWidth: () => 0.5,
+          hLineColor: () => '#e2e8f0',
+          vLineColor: () => '#e2e8f0'
+        },
+        margin: [0, 0, 0, 20]
+      }
+    ];
+  }
+
+  /**
+   * Genera tabella Stato Patrimoniale
+   */
+  generateStatoPatrimonialeTable() {
+    const sp = this.data.noteTecniche?.find(n => n.title === 'Stato Patrimoniale');
+    if (!sp || !sp.statoPatrimoniale) {
+      return [{ text: 'Dati Stato Patrimoniale non disponibili', fontSize: 10, color: '#64748b', margin: [0, 10, 0, 10] }];
+    }
+
+    const attivo = sp.statoPatrimoniale.attivo || {};
+    const passivo = sp.statoPatrimoniale.passivo || {};
+
+    const tableData = [
+      // Header
+      [
+        { text: 'ATTIVO', style: 'tableHeader', colSpan: 2 },
+        {},
+        { text: 'PASSIVO', style: 'tableHeader', colSpan: 2 },
+        {}
+      ],
+      [
+        { text: 'Voce', style: 'tableHeader' },
+        { text: '2024 (€)', style: 'tableHeader', alignment: 'right' },
+        { text: 'Voce', style: 'tableHeader' },
+        { text: '2024 (€)', style: 'tableHeader', alignment: 'right' }
+      ],
+      // Immobilizzazioni vs Patrimonio Netto
+      ['Immobilizzazioni', attivo.immobilizzazioni?.['2024']?.toLocaleString('it-IT') || '-', 'Patrimonio Netto', passivo.patrimonioNetto?.['2024']?.toLocaleString('it-IT') || '-'],
+      // Attivo Circolante vs Debiti
+      ['Attivo Circolante', attivo.circolante?.reduce((sum, c) => sum + (c['2024'] || 0), 0).toLocaleString('it-IT') || '-', 'Debiti', passivo.totaleDebiti?.['2024']?.toLocaleString('it-IT') || '-'],
+      // Dettagli Circolante
+      ['  - Crediti', attivo.circolante?.find(c => c.voce === 'Crediti')?.['2024']?.toLocaleString('it-IT') || '-', '  - Debiti vs Fornitori', passivo.debiti?.find(d => d.voce === 'Debiti verso fornitori')?.['2024']?.toLocaleString('it-IT') || '-'],
+      ['  - Rimanenze', attivo.circolante?.find(c => c.voce === 'Rimanenze')?.['2024']?.toLocaleString('it-IT') || '-', '  - Debiti Tributari', passivo.debiti?.find(d => d.voce === 'Debiti tributari')?.['2024']?.toLocaleString('it-IT') || '-'],
+      ['  - Disponibilità Liquide', attivo.circolante?.find(c => c.voce === 'Disponibilità liquide')?.['2024']?.toLocaleString('it-IT') || '-', '  - Debiti Bancari', passivo.debiti?.find(d => d.voce === 'Debiti verso banche')?.['2024']?.toLocaleString('it-IT') || '-'],
+      // Totali
+      [{ text: 'TOTALE ATTIVO', bold: true }, { text: attivo.totaleAttivo?.['2024']?.toLocaleString('it-IT') || '-', bold: true }, { text: 'TOTALE PASSIVO', bold: true }, { text: passivo.totalePassivo?.['2024']?.toLocaleString('it-IT') || '-', bold: true }]
+    ];
+
+    return [
+      { text: 'Stato Patrimoniale', style: 'h3', margin: [0, 20, 0, 12] },
+      {
+        table: {
+          headerRows: 2,
+          widths: ['*', 'auto', '*', 'auto'],
+          body: tableData
+        },
+        layout: {
+          fillColor: (rowIndex) => (rowIndex < 2 ? '#3b82f6' : rowIndex % 2 === 0 ? '#f8fafc' : null),
+          hLineWidth: () => 0.5,
+          vLineWidth: () => 0.5,
+          hLineColor: () => '#e2e8f0',
+          vLineColor: () => '#e2e8f0'
+        },
+        margin: [0, 0, 0, 20]
+      }
+    ];
+  }
+
+  /**
+   * Genera box Rating visivo
+   */
+  generateRiskBox() {
+    return [
+      {
+        text: 'Sintesi Risk Assessment',
+        style: 'h3',
+        margin: [0, 20, 0, 12]
+      },
+      {
+        table: {
+          widths: ['*', '*', '*'],
+          body: [
+            [
+              {
+                stack: [
+                  { text: 'RATING', fontSize: 10, color: '#64748b', margin: [0, 0, 0, 8], alignment: 'center' },
+                  { text: this.data.riskAssessment.rating, fontSize: 28, bold: true, color: this.getRatingColor(), alignment: 'center', margin: [0, 0, 0, 5] },
+                  { text: this.data.riskAssessment.categoryLabel, fontSize: 11, color: '#64748b', alignment: 'center' }
+                ],
+                border: [true, true, false, true],
+                margin: [15, 15, 15, 15],
+                fillColor: '#f8fafc'
+              },
+              {
+                stack: [
+                  { text: 'SCORE', fontSize: 10, color: '#64748b', margin: [0, 0, 0, 8], alignment: 'center' },
+                  { text: `${this.data.riskAssessment.score.toFixed(1)}/100`, fontSize: 28, bold: true, color: '#1e293b', alignment: 'center', margin: [0, 0, 0, 5] },
+                  { text: 'Indice Rischio Ponderato', fontSize: 11, color: '#64748b', alignment: 'center' }
+                ],
+                border: [false, true, false, true],
+                margin: [15, 15, 15, 15],
+                fillColor: '#f8fafc'
+              },
+              {
+                stack: [
+                  { text: 'TREND', fontSize: 10, color: '#64748b', margin: [0, 0, 0, 8], alignment: 'center' },
+                  { text: this.data.riskAssessment.previousRating === this.data.riskAssessment.rating ? '→' : '↓', fontSize: 28, bold: true, color: '#94a3b8', alignment: 'center', margin: [0, 0, 0, 5] },
+                  { text: `vs ${this.data.riskAssessment.previousRating}`, fontSize: 11, color: '#64748b', alignment: 'center' }
+                ],
+                border: [false, true, true, true],
+                margin: [15, 15, 15, 15],
+                fillColor: '#f8fafc'
+              }
+            ]
+          ]
+        },
+        layout: {
+          hLineWidth: () => 1,
+          vLineWidth: () => 1,
+          hLineColor: () => '#e2e8f0',
+          vLineColor: () => '#e2e8f0'
+        },
+        margin: [0, 0, 0, 20]
+      }
+    ];
+  }
+
+  /**
+   * Genera box Codice della Crisi con indicatori colorati
+   */
+  generateCodiceCrisiBox() {
+    const indices = this.data.codiceCrisi.indices || [];
+
+    const indiciRows = indices.map(idx => [
+      {
+        text: `${idx.status === 'OK' ? '✓' : '⚠'}  ${idx.name}`,
+        fontSize: 11,
+        color: idx.status === 'OK' ? '#10b981' : '#f59e0b',
+        bold: idx.status !== 'OK'
+      },
+      { text: idx.value, fontSize: 11, alignment: 'right' },
+      { text: idx.soglia, fontSize: 11, alignment: 'right', color: '#64748b' },
+      { text: idx.status, fontSize: 11, alignment: 'center', color: idx.status === 'OK' ? '#10b981' : '#f59e0b', bold: true }
+    ]);
+
+    return [
+      { text: 'Monitoraggio Indici', style: 'h3', margin: [0, 20, 0, 12] },
+      {
+        table: {
+          widths: ['*', 'auto', 'auto', 'auto'],
+          body: [
+            [
+              { text: 'Indicatore', style: 'tableHeader' },
+              { text: 'Valore', style: 'tableHeader', alignment: 'right' },
+              { text: 'Soglia', style: 'tableHeader', alignment: 'right' },
+              { text: 'Status', style: 'tableHeader', alignment: 'center' }
+            ],
+            ...indiciRows
+          ]
+        },
+        layout: {
+          fillColor: (rowIndex) => (rowIndex === 0 ? '#3b82f6' : rowIndex % 2 === 0 ? '#f8fafc' : null),
+          hLineWidth: () => 0.5,
+          vLineWidth: () => 0.5,
+          hLineColor: () => '#e2e8f0',
+          vLineColor: () => '#e2e8f0'
+        },
+        margin: [0, 0, 0, 15]
+      },
+      {
+        columns: [
+          {
+            width: '*',
+            text: [
+              { text: 'Status Generale: ', fontSize: 11, color: '#64748b' },
+              { text: this.data.codiceCrisi.status.overall, fontSize: 11, bold: true, color: this.data.codiceCrisi.status.overall === 'IN BONIS' ? '#10b981' : '#f59e0b' }
+            ]
+          },
+          {
+            width: '*',
+            text: `${this.data.codiceCrisi.status.indiciOk} OK / ${this.data.codiceCrisi.status.indiciAllerta} in Allerta`,
+            fontSize: 11,
+            alignment: 'right',
+            color: '#64748b'
+          }
+        ],
+        margin: [0, 0, 0, 20]
       }
     ];
   }
