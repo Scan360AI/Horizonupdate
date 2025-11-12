@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horizon Financial Monitor | Profilo Aziendale</title>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+
+  <!-- RemixIcon -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../index.html" class="logo" style="justify-content: center;">
+          <img src="../assets/images/logo.png" alt="Horizon Financial Monitor" class="logo-image">
+        </a>
+      </div>
+      
+      <nav>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="../index.html" class="nav-link">
+              <i class="nav-icon ri-dashboard-line"></i>
+              <span>Overview</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="analisi-economica.html" class="nav-link">
+              <i class="nav-icon ri-line-chart-line"></i>
+              <span>Analisi Economica</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="stato-patrimoniale.html" class="nav-link">
+              <i class="nav-icon ri-file-list-3-line"></i>
+              <span>Stato Patrimoniale</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="profilo-aziendale.html" class="nav-link active">
+              <i class="nav-icon ri-building-line"></i>
+              <span>Profilo Aziendale</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="codice-crisi.html" class="nav-link">
+              <i class="nav-icon ri-shield-cross-line"></i>
+              <span>Codice della Crisi</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="profili-rischio.html" class="nav-link">
+              <i class="nav-icon ri-radar-line"></i>
+              <span>Profili di Rischio</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title">Profilo Aziendale</h1>
+        <p class="page-subtitle">Informazioni generali, struttura e partecipazioni</p>
+      </div>
+
+      <!-- Company Info Card -->
+      <div class="card" style="background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); color: white; margin-bottom: var(--space-xl);">
+        <div style="display: flex; justify-content: space-between; align-items: start; gap: var(--space-xl);">
+          <div>
+            <div style="display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: var(--space-md);" id="company-legal-form">
+              Società Cooperativa
+            </div>
+            <h2 style="font-size: 32px; font-weight: 700; margin-bottom: var(--space-sm);" id="company-full-name">-</h2>
+            <p style="opacity: 0.9; font-size: 15px; margin-bottom: var(--space-md);" id="company-address">-</p>
+            <div style="display: flex; gap: var(--space-lg); flex-wrap: wrap;">
+              <div>
+                <div style="font-size: 13px; opacity: 0.8; margin-bottom: 4px;">P.IVA</div>
+                <div style="font-size: 16px; font-weight: 600;" id="company-piva">-</div>
+              </div>
+              <div>
+                <div style="font-size: 13px; opacity: 0.8; margin-bottom: 4px;">Costituzione</div>
+                <div style="font-size: 16px; font-weight: 600;" id="company-founded">-</div>
+              </div>
+              <div>
+                <div style="font-size: 13px; opacity: 0.8; margin-bottom: 4px;">ATECO</div>
+                <div style="font-size: 16px; font-weight: 600;" id="company-ateco">-</div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <img src="../assets/images/logo-large.png" alt="Horizon Financial Monitor" style="height: 80px; width: auto; max-width: 250px; object-fit: contain; background: white; border-radius: var(--radius-md); padding: 12px;">
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <!-- Dati Anagrafici -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="ri-file-text-line card-icon"></i>
+              Dati Anagrafici
+            </h3>
+          </div>
+          <div class="card-body">
+            <ul class="info-list" id="company-registry">
+              <!-- Will be populated -->
+            </ul>
+          </div>
+        </div>
+
+        <!-- Struttura -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="ri-organization-chart card-icon"></i>
+              Struttura Aziendale
+            </h3>
+          </div>
+          <div class="card-body">
+            <ul class="info-list" id="company-structure">
+              <!-- Will be populated -->
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Data -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="ri-bar-chart-box-line card-icon"></i>
+            Indicatori Finanziari Principali
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-4" id="financial-indicators">
+            <!-- Will be populated -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Management -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="ri-team-line card-icon"></i>
+            Management
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-3" id="management">
+            <!-- Will be populated -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Partecipazioni -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="ri-links-line card-icon"></i>
+            Partecipazioni Societarie
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-3" id="participations">
+            <!-- Will be populated -->
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <!-- pdfmake for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.min.js"></script>
+
+  <script src="../js/main.js"></script>
+  <script src="../js/pdf-generator.js"></script>
+  <script src="../js/chatbot.js"></script>
+  <script>
+    // Page-specific initialization
+    document.addEventListener('DOMContentLoaded', async () => {
+      await report.init();
+      
+      if (report.data) {
+        // Company header
+        document.getElementById('company-legal-form').textContent = report.data.company.legalForm;
+        document.getElementById('company-full-name').textContent = report.data.company.fullName;
+        document.getElementById('company-address').innerHTML = `
+          ${report.data.company.address.street}<br>
+          ${report.data.company.address.zip} ${report.data.company.address.city} (${report.data.company.address.province})
+        `;
+        document.getElementById('company-piva').textContent = report.data.company.piva;
+        document.getElementById('company-founded').textContent = report.data.company.foundedDate;
+        document.getElementById('company-ateco').textContent = report.data.company.ateco;
+        
+        // Registry data
+        const registry = document.getElementById('company-registry');
+        report.data.profiloAziendale.datiAnagrafici.forEach(item => {
+          registry.innerHTML += `
+            <li class="info-item">
+              <span class="info-label">${item.label}</span>
+              <span class="info-value">${item.value}</span>
+            </li>
+          `;
+        });
+        
+        // Structure data
+        const structure = document.getElementById('company-structure');
+        report.data.profiloAziendale.struttura.forEach(item => {
+          structure.innerHTML += `
+            <li class="info-item">
+              <span class="info-label">${item.label}</span>
+              <span class="info-value">${item.value}</span>
+            </li>
+          `;
+        });
+        
+        // Financial indicators
+        const indicators = document.getElementById('financial-indicators');
+        report.data.datiFinanziari.forEach(item => {
+          const statusColor = item.status ? 
+            (item.status.includes('eccellente') || item.status.includes('Ottima') ? 'var(--success)' :
+             item.status.includes('attenzione') || item.status.includes('Alto') ? 'var(--danger)' :
+             'var(--gray-600)') : 'var(--gray-600)';
+          
+          indicators.innerHTML += `
+            <div style="padding: var(--space-md); background: var(--gray-50); border-radius: var(--radius-sm);">
+              <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px; font-weight: 500;">${item.label}</div>
+              <div style="font-size: 20px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px;">${item.value}</div>
+              <div style="font-size: 12px; color: ${statusColor}; font-weight: 500;">${item.trend || item.status || ''}</div>
+            </div>
+          `;
+        });
+        
+        // Management
+        if (report.data.management) {
+          const management = document.getElementById('management');
+          report.data.management.forEach(member => {
+            const colors = {
+              'blue': 'var(--primary)',
+              'teal': '#00D4FF',
+              'yellow': 'var(--warning)'
+            };
+            
+            management.innerHTML += `
+              <div class="card" style="padding: var(--space-lg);">
+                <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--space-md);">
+                  <div style="width: 72px; height: 72px; background: ${colors[member.colorClass]}; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 24px;">
+                    ${member.initials}
+                  </div>
+                  <div>
+                    <div style="font-size: 16px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px;">${member.name}</div>
+                    <div style="font-size: 13px; color: var(--gray-600); margin-bottom: ${member.badge ? 'var(--space-sm)' : '0'};">${member.role}</div>
+                    ${member.badge ? `<span class="badge good" style="font-size: 10px;">${member.badge}</span>` : ''}
+                  </div>
+                  <div style="font-size: 12px; color: var(--gray-500); padding-top: var(--space-sm); border-top: 1px solid var(--gray-200);">
+                    Dal ${member.appointmentDate}
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        }
+        
+        // Participations
+        const participations = document.getElementById('participations');
+        report.data.partecipazioni.forEach(part => {
+          participations.innerHTML += `
+            <div class="card" style="padding: var(--space-lg);">
+              <div style="display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-md);">
+                <div style="width: 48px; height: 48px; background: var(--primary-light); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: var(--primary); font-weight: 700; font-size: 18px;">
+                  ${part.companyName.charAt(0)}
+                </div>
+                <div style="flex: 1;">
+                  <div style="font-size: 15px; font-weight: 600; color: var(--gray-900);">${part.companyName}</div>
+                  <div style="font-size: 13px; color: var(--gray-500);">${part.tipo}</div>
+                </div>
+              </div>
+              <div style="padding-top: var(--space-md); border-top: 1px solid var(--gray-200);">
+                <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Quota di partecipazione</div>
+                <div style="font-size: 24px; font-weight: 700; color: var(--primary);">${part.quota}</div>
+              </div>
+            </div>
+          `;
+        });
+      }
+    });
+  </script>
+</body>
+</html>

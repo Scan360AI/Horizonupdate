@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horizon Financial Monitor | Codice della Crisi</title>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+
+  <!-- RemixIcon -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../index.html" class="logo" style="justify-content: center;">
+          <img src="../assets/images/logo.png" alt="Horizon Financial Monitor" class="logo-image">
+        </a>
+      </div>
+      
+      <nav>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="../index.html" class="nav-link">
+              <i class="nav-icon ri-dashboard-line"></i>
+              <span>Overview</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="analisi-economica.html" class="nav-link">
+              <i class="nav-icon ri-line-chart-line"></i>
+              <span>Analisi Economica</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="stato-patrimoniale.html" class="nav-link">
+              <i class="nav-icon ri-file-list-3-line"></i>
+              <span>Stato Patrimoniale</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="profilo-aziendale.html" class="nav-link">
+              <i class="nav-icon ri-building-line"></i>
+              <span>Profilo Aziendale</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="codice-crisi.html" class="nav-link active">
+              <i class="nav-icon ri-shield-cross-line"></i>
+              <span>Codice della Crisi</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="profili-rischio.html" class="nav-link">
+              <i class="nav-icon ri-radar-line"></i>
+              <span>Profili di Rischio</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title">Codice della Crisi d'Impresa</h1>
+        <p class="page-subtitle">Analisi degli indici di allerta secondo D.Lgs. 14/2019</p>
+      </div>
+
+      <!-- Status Overview -->
+      <div class="card" style="background: linear-gradient(135deg, #FFB020 0%, #FF8C00 100%); color: white; margin-bottom: var(--space-xl);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h2 style="font-size: 24px; font-weight: 700; margin-bottom: var(--space-sm);" id="crisis-title">INDICI CODICE DELLA CRISI</h2>
+            <p style="opacity: 0.9; font-size: 16px; margin-bottom: var(--space-md);">Stato complessivo del sistema di allerta precoce</p>
+            <div style="display: flex; gap: var(--space-xl); margin-top: var(--space-lg);">
+              <div>
+                <div style="font-size: 14px; opacity: 0.8; margin-bottom: 4px;">Indici OK</div>
+                <div style="font-size: 32px; font-weight: 700;" id="indici-ok">-</div>
+              </div>
+              <div>
+                <div style="font-size: 14px; opacity: 0.8; margin-bottom: 4px;">In Allerta</div>
+                <div style="font-size: 32px; font-weight: 700;" id="indici-allerta">-</div>
+              </div>
+              <div>
+                <div style="font-size: 14px; opacity: 0.8; margin-bottom: 4px;">Mancanti</div>
+                <div style="font-size: 32px; font-weight: 700;" id="indici-mancanti">-</div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align: center;">
+            <i class="ri-shield-cross-line" style="font-size: 120px; opacity: 0.3;"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Indices List -->
+      <div id="indices-container">
+        <!-- Will be populated -->
+      </div>
+
+      <!-- Notes Section -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="ri-information-line card-icon"></i>
+            Note Interpretative
+          </h3>
+        </div>
+        <div class="card-body">
+          <div id="notes-container">
+            <!-- Will be populated -->
+          </div>
+        </div>
+      </div>
+
+      <!-- References -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="ri-book-line card-icon"></i>
+            Riferimenti Normativi
+          </h3>
+        </div>
+        <div class="card-body">
+          <div id="references-container">
+            <!-- Will be populated -->
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <!-- pdfmake for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.min.js"></script>
+
+  <script src="../js/main.js"></script>
+  <script src="../js/pdf-generator.js"></script>
+  <script src="../js/chatbot.js"></script>
+  <script>
+    // Page-specific initialization
+    document.addEventListener('DOMContentLoaded', async () => {
+      await report.init();
+      
+      if (report.data && report.data.codiceCrisi) {
+        const crisi = report.data.codiceCrisi;
+        
+        // Status overview
+        document.getElementById('indici-ok').textContent = crisi.status.indiciOk;
+        document.getElementById('indici-allerta').textContent = crisi.status.indiciAllerta;
+        document.getElementById('indici-mancanti').textContent = crisi.status.indiciMancanti;
+        
+        // Render indices
+        const indicesContainer = document.getElementById('indices-container');
+        crisi.indices.forEach(index => {
+          const statusColors = {
+            'OK': 'var(--success)',
+            'ALLERTA': 'var(--danger)',
+            'PARZIALE': 'var(--warning)',
+            'MANCANTE': 'var(--gray-400)'
+          };
+          
+          const statusBgs = {
+            'OK': 'rgba(0, 217, 36, 0.1)',
+            'ALLERTA': 'rgba(223, 27, 65, 0.1)',
+            'PARZIALE': 'rgba(255, 176, 32, 0.1)',
+            'MANCANTE': 'rgba(0, 0, 0, 0.05)'
+          };
+          
+          indicesContainer.innerHTML += `
+            <div class="card" style="border-left: 4px solid ${statusColors[index.status]};">
+              <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-md);">
+                <div style="flex: 1;">
+                  <div style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-xs);">
+                    <span style="display: inline-block; background: ${statusBgs[index.status]}; color: ${statusColors[index.status]}; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase;">
+                      ${index.status}
+                    </span>
+                    <span style="color: var(--gray-400); font-weight: 700;">Indice ${index.number}</span>
+                  </div>
+                  <h3 style="font-size: 18px; font-weight: 700; color: var(--gray-900); margin-bottom: var(--space-xs);">
+                    ${index.name}
+                  </h3>
+                  <p style="font-size: 14px; color: var(--gray-600); margin-bottom: var(--space-md);">
+                    ${index.description}
+                  </p>
+                </div>
+                <i class="${index.statusIcon}" style="font-size: 36px; color: ${statusColors[index.status]};"></i>
+              </div>
+              
+              <div class="grid grid-2" style="gap: var(--space-md); margin-bottom: var(--space-md);">
+                <div style="padding: var(--space-md); background: var(--gray-50); border-radius: var(--radius-sm);">
+                  <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Valore Attuale</div>
+                  <div style="font-size: 24px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px;">${index.value}</div>
+                  <div style="font-size: 12px; color: var(--gray-500);">${index.detail}</div>
+                </div>
+                <div style="padding: var(--space-md); background: var(--gray-50); border-radius: var(--radius-sm);">
+                  <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">Soglia</div>
+                  <div style="font-size: 24px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px;">${index.soglia}</div>
+                  <div style="font-size: 12px; color: var(--gray-500);">${index.sogliaNote}</div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        
+        // Render notes
+        const notesContainer = document.getElementById('notes-container');
+        crisi.notes.forEach(note => {
+          const iconColors = {
+            'warning': 'var(--warning)',
+            'primary': 'var(--primary)',
+            'positive': 'var(--success)'
+          };
+          
+          notesContainer.innerHTML += `
+            <div style="padding: var(--space-lg); background: var(--gray-50); border-radius: var(--radius-md); margin-bottom: var(--space-md); border-left: 4px solid ${iconColors[note.colorClass]};">
+              <div style="display: flex; gap: var(--space-md); align-items: start;">
+                <i class="${note.icon}" style="font-size: 24px; color: ${iconColors[note.colorClass]};"></i>
+                <div style="flex: 1;">
+                  <h4 style="font-size: 16px; font-weight: 600; color: var(--gray-900); margin-bottom: var(--space-xs);">${note.title}</h4>
+                  <p style="font-size: 14px; color: var(--gray-700); line-height: 1.6;">${note.text}</p>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        
+        // Render references
+        const referencesContainer = document.getElementById('references-container');
+        crisi.references.forEach(ref => {
+          const refColors = {
+            'primary': 'var(--primary)',
+            'secondary': 'var(--gray-600)'
+          };
+          
+          referencesContainer.innerHTML += `
+            <div style="padding: var(--space-md); border-left: 3px solid ${refColors[ref.colorClass]}; margin-bottom: var(--space-md);">
+              <h4 style="font-size: 15px; font-weight: 600; color: var(--gray-900); margin-bottom: var(--space-xs);">${ref.title}</h4>
+              <p style="font-size: 14px; color: var(--gray-600); line-height: 1.6;">${ref.description}</p>
+            </div>
+          `;
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horizon Financial Monitor | Stato Patrimoniale</title>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+
+  <!-- RemixIcon -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../index.html" class="logo" style="justify-content: center;">
+          <img src="../assets/images/logo.png" alt="Horizon Financial Monitor" class="logo-image">
+        </a>
+      </div>
+      
+      <nav>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="../index.html" class="nav-link">
+              <i class="nav-icon ri-dashboard-line"></i>
+              <span>Overview</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="analisi-economica.html" class="nav-link">
+              <i class="nav-icon ri-line-chart-line"></i>
+              <span>Analisi Economica</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="stato-patrimoniale.html" class="nav-link active">
+              <i class="nav-icon ri-file-list-3-line"></i>
+              <span>Stato Patrimoniale</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="profilo-aziendale.html" class="nav-link">
+              <i class="nav-icon ri-building-line"></i>
+              <span>Profilo Aziendale</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="codice-crisi.html" class="nav-link">
+              <i class="nav-icon ri-shield-cross-line"></i>
+              <span>Codice della Crisi</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="profili-rischio.html" class="nav-link">
+              <i class="nav-icon ri-radar-line"></i>
+              <span>Profili di Rischio</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title">Stato Patrimoniale</h1>
+        <p class="page-subtitle">Bilancio dettagliato con comparazione Year-over-Year</p>
+      </div>
+
+      <!-- Balance Sheet -->
+      <div class="grid grid-2">
+        <!-- ATTIVO -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="ri-arrow-up-circle-line card-icon"></i>
+              ATTIVO
+            </h3>
+          </div>
+          <div class="card-body">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Voce</th>
+                  <th style="text-align: right;">2023</th>
+                  <th style="text-align: right;">2024</th>
+                  <th style="text-align: right;">Trend</th>
+                </tr>
+              </thead>
+              <tbody id="attivo-immobilizzazioni">
+                <!-- Will be populated -->
+              </tbody>
+            </table>
+            
+            <div style="margin: var(--space-lg) 0;">
+              <h4 style="font-size: 16px; font-weight: 600; color: var(--gray-900); margin-bottom: var(--space-md);">
+                Attivo Circolante
+              </h4>
+              <table class="data-table">
+                <tbody id="attivo-circolante">
+                  <!-- Will be populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- PASSIVO -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="ri-arrow-down-circle-line card-icon"></i>
+              PASSIVO
+            </h3>
+          </div>
+          <div class="card-body">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Voce</th>
+                  <th style="text-align: right;">2023</th>
+                  <th style="text-align: right;">2024</th>
+                  <th style="text-align: right;">Trend</th>
+                </tr>
+              </thead>
+              <tbody id="passivo-patrimonio">
+                <!-- Will be populated -->
+              </tbody>
+            </table>
+            
+            <div style="margin: var(--space-lg) 0;">
+              <h4 style="font-size: 16px; font-weight: 600; color: var(--gray-900); margin-bottom: var(--space-md);">
+                Debiti
+              </h4>
+              <table class="data-table">
+                <tbody id="passivo-debiti">
+                  <!-- Will be populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conto Economico -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="ri-file-chart-line card-icon"></i>
+            CONTO ECONOMICO
+          </h3>
+        </div>
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Voce</th>
+                <th style="text-align: right;">2023</th>
+                <th style="text-align: right;">2024</th>
+                <th style="text-align: right;">Trend Y2Y</th>
+              </tr>
+            </thead>
+            <tbody id="conto-economico">
+              <!-- Will be populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- DSCR Calculation -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="ri-calculator-line card-icon"></i>
+            Calcolo DSCR (Debt Service Coverage Ratio)
+          </h3>
+        </div>
+        <div class="card-body" id="dscr-calculation">
+          <!-- Will be populated -->
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <!-- pdfmake for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.min.js"></script>
+
+  <script src="../js/main.js"></script>
+  <script src="../js/pdf-generator.js"></script>
+  <script src="../js/chatbot.js"></script>
+  <script>
+    // Helper function to render table row
+    function renderTableRow(item, isTotal = false) {
+      const trendClass = item.trendColor === 'green' ? 'trend-positive' : 
+                        item.trendColor === 'red' ? 'trend-negative' : 'trend-neutral';
+      const rowClass = isTotal ? 'row-highlight' : '';
+      
+      return `
+        <tr class="${rowClass}">
+          <td><strong>${item.voce}</strong></td>
+          <td style="text-align: right;">${item['2023']}</td>
+          <td style="text-align: right;">${item['2024']}</td>
+          <td style="text-align: right;" class="${trendClass}">${item.trend}</td>
+        </tr>
+      `;
+    }
+
+    // Page-specific initialization
+    document.addEventListener('DOMContentLoaded', async () => {
+      await report.init();
+      
+      if (report.data) {
+        const bilancioData = report.data.noteTecniche.find(item => item.id === 'bilancio');
+        const dscrData = report.data.noteTecniche.find(item => item.id === 'dscr');
+        
+        if (bilancioData) {
+          // ATTIVO - Immobilizzazioni
+          const attivoImm = document.getElementById('attivo-immobilizzazioni');
+          bilancioData.statoPatrimoniale.attivo.immobilizzazioni.forEach(item => {
+            attivoImm.innerHTML += renderTableRow(item);
+          });
+          attivoImm.innerHTML += renderTableRow({
+            voce: 'Totale Immobilizzazioni',
+            ...bilancioData.statoPatrimoniale.attivo.totaleImmobilizzazioni
+          }, true);
+          
+          // ATTIVO - Circolante
+          const attivoCirc = document.getElementById('attivo-circolante');
+          bilancioData.statoPatrimoniale.attivo.circolante.forEach(item => {
+            attivoCirc.innerHTML += renderTableRow(item);
+          });
+          attivoCirc.innerHTML += renderTableRow({
+            voce: 'Totale Circolante',
+            ...bilancioData.statoPatrimoniale.attivo.totaleCircolante
+          }, true);
+          attivoCirc.innerHTML += renderTableRow({
+            voce: 'TOTALE ATTIVO',
+            ...bilancioData.statoPatrimoniale.attivo.totaleAttivo
+          }, true);
+          
+          // PASSIVO - Patrimonio Netto
+          const passivoPatr = document.getElementById('passivo-patrimonio');
+          bilancioData.statoPatrimoniale.passivo.patrimonioNetto.forEach(item => {
+            passivoPatr.innerHTML += renderTableRow(item);
+          });
+          passivoPatr.innerHTML += renderTableRow({
+            voce: 'Totale Patrimonio Netto',
+            ...bilancioData.statoPatrimoniale.passivo.totalePatrimonioNetto
+          }, true);
+          
+          // PASSIVO - Debiti
+          const passivoDeb = document.getElementById('passivo-debiti');
+          bilancioData.statoPatrimoniale.passivo.debiti.forEach(item => {
+            passivoDeb.innerHTML += renderTableRow(item);
+          });
+          passivoDeb.innerHTML += renderTableRow({
+            voce: 'Totale Debiti',
+            ...bilancioData.statoPatrimoniale.passivo.totaleDebiti
+          }, true);
+          passivoDeb.innerHTML += renderTableRow({
+            voce: 'TOTALE PASSIVO',
+            ...bilancioData.statoPatrimoniale.passivo.totalePassivo
+          }, true);
+          
+          // Conto Economico
+          const contoEcon = document.getElementById('conto-economico');
+          bilancioData.contoEconomico.forEach(item => {
+            contoEcon.innerHTML += renderTableRow(item, item.highlight);
+          });
+        }
+        
+        // DSCR Calculation
+        if (dscrData) {
+          const dscrCalc = document.getElementById('dscr-calculation');
+          
+          let calculationHTML = '<div style="margin-bottom: var(--space-lg);">';
+          calculationHTML += '<h4 style="font-size: 16px; font-weight: 600; margin-bottom: var(--space-md);">Formula DSCR</h4>';
+          calculationHTML += '<div style="background: var(--gray-100); padding: var(--space-md); border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 14px; margin-bottom: var(--space-md);">';
+          calculationHTML += 'DSCR = EBITDA / (Oneri Finanziari + Quota Capitale Annuale)';
+          calculationHTML += '</div>';
+          
+          // Components
+          calculationHTML += '<div class="grid grid-2" style="gap: var(--space-md); margin-bottom: var(--space-lg);">';
+          dscrData.values.forEach(comp => {
+            const colorClass = comp.color === 'primary' ? 'style="color: var(--primary); font-weight: 700;"' : '';
+            calculationHTML += `
+              <div style="padding: var(--space-md); background: var(--gray-50); border-radius: var(--radius-sm);">
+                <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 4px;">${comp.label}</div>
+                <div ${colorClass} style="font-size: 18px; font-weight: 600;">${comp.value}</div>
+              </div>
+            `;
+          });
+          calculationHTML += '</div>';
+          
+          // Assumptions
+          calculationHTML += '<h4 style="font-size: 16px; font-weight: 600; margin-bottom: var(--space-md);">Assunzioni di Calcolo</h4>';
+          calculationHTML += '<ul style="list-style: none; padding: 0;">';
+          dscrData.assumptions.forEach(assumption => {
+            calculationHTML += `<li style="padding: var(--space-xs) 0; font-size: 14px; color: var(--gray-700); line-height: 1.6;">${assumption}</li>`;
+          });
+          calculationHTML += '</ul>';
+          
+          // Result
+          calculationHTML += '</div>';
+          calculationHTML += '<div style="background: var(--primary-light); padding: var(--space-lg); border-radius: var(--radius-md); border-left: 4px solid var(--primary);">';
+          calculationHTML += '<h4 style="font-size: 16px; font-weight: 600; margin-bottom: var(--space-md); color: var(--primary);">Risultato</h4>';
+          calculationHTML += `<div style="font-size: 14px; color: var(--gray-700); margin-bottom: var(--space-sm);">${dscrData.result.calculation}</div>`;
+          calculationHTML += `<div style="font-size: 32px; font-weight: 700; color: var(--primary); margin: var(--space-md) 0;">DSCR = ${dscrData.result.value}</div>`;
+          calculationHTML += `<p style="font-size: 14px; color: var(--gray-700); line-height: 1.6;">${dscrData.result.interpretation}</p>`;
+          calculationHTML += '</div>';
+          
+          dscrCalc.innerHTML = calculationHTML;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
