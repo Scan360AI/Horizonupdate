@@ -433,12 +433,18 @@ class PDFGenerator {
    * Genera nota personalizzata basata su conversazione
    */
   async generateCustomNote(noteContent, noteTitle, chartImages = null) {
+    console.log('🔥🔥🔥 generateCustomNote CHIAMATO - VERSIONE PDFMAKE CON SWOT/CRISI/KPI');
+    console.log('Titolo:', noteTitle);
+    console.log('Contenuto lunghezza:', noteContent?.length);
+    console.log('ChartImages:', chartImages ? Object.keys(chartImages) : 'null');
+
     if (!this.data) {
       alert('Dati finanziari non disponibili');
       return;
     }
 
-    this.logoBase64 = await this.loadLogo();
+    try {
+      this.logoBase64 = await this.loadLogo();
 
     const docDefinition = {
       info: {
@@ -601,14 +607,25 @@ class PDFGenerator {
       }
     };
 
-    // Genera filename sicuro
-    const safeTitle = (noteTitle || 'nota')
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .substring(0, 50);
+      // Genera filename sicuro
+      const safeTitle = (noteTitle || 'nota')
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .substring(0, 50);
 
-    pdfMake.createPdf(docDefinition).download(`nota-${safeTitle}-${this.getCurrentDate()}.pdf`);
+      console.log('✅ DocDefinition creato con successo, generazione PDF...');
+      console.log('Sezioni nel content:', docDefinition.content.length);
+
+      pdfMake.createPdf(docDefinition).download(`nota-${safeTitle}-${this.getCurrentDate()}.pdf`);
+
+      console.log('✅✅✅ PDF GENERATO CON SWOT, CODICE CRISI E KPI!');
+    } catch (error) {
+      console.error('❌❌❌ ERRORE GENERAZIONE PDF:', error);
+      console.error('Stack:', error.stack);
+      alert(`Errore generazione PDF: ${error.message}`);
+      throw error;
+    }
   }
 
   /**
