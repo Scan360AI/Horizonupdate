@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horizon Financial Monitor | Overview</title>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/chatbot.css">
+
+  <!-- RemixIcon -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="logo" style="justify-content: center;">
+          <img src="assets/images/logo.png" alt="Horizon Financial Monitor" class="logo-image">
+        </a>
+      </div>
+      
+      <nav>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="index.html" class="nav-link active">
+              <i class="nav-icon ri-dashboard-line"></i>
+              <span>Overview</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="pages/analisi-economica.html" class="nav-link">
+              <i class="nav-icon ri-line-chart-line"></i>
+              <span>Analisi Economica</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="pages/stato-patrimoniale.html" class="nav-link">
+              <i class="nav-icon ri-file-list-3-line"></i>
+              <span>Stato Patrimoniale</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="pages/profilo-aziendale.html" class="nav-link">
+              <i class="nav-icon ri-building-line"></i>
+              <span>Profilo Aziendale</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="pages/codice-crisi.html" class="nav-link">
+              <i class="nav-icon ri-shield-cross-line"></i>
+              <span>Codice della Crisi</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="pages/profili-rischio.html" class="nav-link">
+              <i class="nav-icon ri-radar-line"></i>
+              <span>Profili di Rischio</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title">Report Finanziario</h1>
+        <p class="page-subtitle">Analisi complessiva della situazione economico-finanziaria</p>
+        
+        <div class="page-meta">
+          <div class="meta-item">
+            <i class="ri-calendar-line"></i>
+            <div>
+              <div class="meta-label">Data Report</div>
+              <div class="meta-value" id="report-date">-</div>
+            </div>
+          </div>
+          <div class="meta-item">
+            <i class="ri-building-line"></i>
+            <div>
+              <div class="meta-label">Azienda</div>
+              <div class="meta-value" id="company-name">-</div>
+            </div>
+          </div>
+          <div class="meta-item">
+            <i class="ri-shield-check-line"></i>
+            <div>
+              <div class="meta-label">Rating</div>
+              <div class="meta-value" id="rating">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Risk Score -->
+      <div class="risk-score-card">
+        <div style="display: flex; justify-content: space-between; align-items: start;">
+          <div>
+            <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 8px; opacity: 0.9;">INDICE DI RISCHIO</h2>
+            <div class="risk-rating" id="risk-rating">CATEGORIA B</div>
+            <div class="risk-score-value" id="risk-score">72.61</div>
+            <p style="opacity: 0.9; max-width: 600px; line-height: 1.6;" id="risk-description">
+              L'Indice di Rischio Ponderato offre una valutazione olistica dell'affidabilità. Il rating B3 e la buona solidità finanziaria indicano attualmente un rischio moderato.
+            </p>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 14px; opacity: 0.8; margin-bottom: 4px;">Scala 0-100</div>
+            <div style="font-size: 36px; font-weight: 700;">100</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key Metrics Grid -->
+      <div class="grid grid-3" id="key-metrics-grid">
+        <!-- Metrics will be loaded here -->
+      </div>
+
+      <!-- Executive Summary -->
+      <div class="summary-section">
+        <div class="summary-card strengths">
+          <h3>
+            <i class="ri-check-double-line"></i>
+            Punti di Forza
+          </h3>
+          <ul class="summary-list" id="strengths-list">
+            <!-- Strengths will be loaded here -->
+          </ul>
+        </div>
+        
+        <div class="summary-card weaknesses">
+          <h3>
+            <i class="ri-error-warning-line"></i>
+            Aree di Attenzione
+          </h3>
+          <ul class="summary-list" id="weaknesses-list">
+            <!-- Weaknesses will be loaded here -->
+          </ul>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <!-- Chart.js for charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- html2pdf.js for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <script src="js/main.js"></script>
+  <script src="js/pdf-generator.js"></script>
+  <script src="js/chatbot.js"></script>
+  <script>
+    // Page-specific initialization
+    document.addEventListener('DOMContentLoaded', async () => {
+      await report.init();
+      
+      if (report.data) {
+        // Update page meta
+        document.getElementById('report-date').textContent = report.data.reportInfo.date;
+        document.getElementById('company-name').textContent = report.data.company.name;
+        document.getElementById('rating').textContent = report.data.riskAssessment.rating;
+        
+        // Update risk score
+        document.getElementById('risk-rating').textContent = report.data.riskAssessment.categoryLabel;
+        document.getElementById('risk-score').textContent = report.data.riskAssessment.score.toFixed(2);
+        document.getElementById('risk-description').textContent = report.data.riskAssessment.description;
+        
+        // Render key metrics
+        const metricsGrid = document.getElementById('key-metrics-grid');
+        report.data.keyMetrics.forEach(metric => {
+          metricsGrid.innerHTML += report.renderMetricCard(metric);
+        });
+        
+        // Render executive summary
+        const strengthsList = document.getElementById('strengths-list');
+        report.data.executiveSummary.strengths.forEach(strength => {
+          strengthsList.innerHTML += `<li>${strength}</li>`;
+        });
+        
+        const weaknessesList = document.getElementById('weaknesses-list');
+        report.data.executiveSummary.weaknesses.forEach(weakness => {
+          weaknessesList.innerHTML += `<li>${weakness}</li>`;
+        });
+      }
+    });
+  </script>
+</body>
+</html>

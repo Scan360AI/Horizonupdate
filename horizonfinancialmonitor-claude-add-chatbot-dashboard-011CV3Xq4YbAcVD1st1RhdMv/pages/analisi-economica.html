@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horizon Financial Monitor | Analisi Economica</title>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+
+  <!-- RemixIcon -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../index.html" class="logo" style="justify-content: center;">
+          <img src="../assets/images/logo.png" alt="Horizon Financial Monitor" class="logo-image">
+        </a>
+      </div>
+      
+      <nav>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="../index.html" class="nav-link">
+              <i class="nav-icon ri-dashboard-line"></i>
+              <span>Overview</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="analisi-economica.html" class="nav-link active">
+              <i class="nav-icon ri-line-chart-line"></i>
+              <span>Analisi Economica</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="stato-patrimoniale.html" class="nav-link">
+              <i class="nav-icon ri-file-list-3-line"></i>
+              <span>Stato Patrimoniale</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="profilo-aziendale.html" class="nav-link">
+              <i class="nav-icon ri-building-line"></i>
+              <span>Profilo Aziendale</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="codice-crisi.html" class="nav-link">
+              <i class="nav-icon ri-shield-cross-line"></i>
+              <span>Codice della Crisi</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="profili-rischio.html" class="nav-link">
+              <i class="nav-icon ri-radar-line"></i>
+              <span>Profili di Rischio</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title">Analisi Economica</h1>
+        <p class="page-subtitle">Trend economico, sostenibilità del debito e test di stress</p>
+      </div>
+
+      <!-- Economic Trend Chart -->
+      <div class="chart-container">
+        <h3 class="card-title">
+          <i class="ri-line-chart-line card-icon"></i>
+          Trend Economico (2022-2024)
+        </h3>
+        <div class="chart-wrapper">
+          <canvas id="economic-trend-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Grid with 2 charts -->
+      <div class="grid grid-2">
+        <!-- Debt Sustainability Chart -->
+        <div class="chart-container">
+          <h3 class="card-title">
+            <i class="ri-scales-3-line card-icon"></i>
+            Sostenibilità del Debito
+          </h3>
+          <div class="chart-wrapper">
+            <canvas id="debt-sustainability-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Working Capital Chart -->
+        <div class="chart-container">
+          <h3 class="card-title">
+            <i class="ri-calendar-check-line card-icon"></i>
+            Capitale Circolante (giorni)
+          </h3>
+          <div class="chart-wrapper">
+            <canvas id="working-capital-chart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stress Test Chart -->
+      <div class="chart-container">
+        <h3 class="card-title">
+          <i class="ri-alert-line card-icon"></i>
+          Test di Stress - Impatto su DSCR
+        </h3>
+        <div class="chart-wrapper">
+          <canvas id="stress-test-chart"></canvas>
+        </div>
+        <div style="margin-top: var(--space-md); padding: var(--space-md); background: var(--gray-100); border-radius: var(--radius-sm);">
+          <p style="font-size: 14px; color: var(--gray-700); line-height: 1.6;">
+            <strong>Interpretazione:</strong> Il test di stress simula scenari avversi (-20% e -40% di EBITDA) per valutare la resilienza della capacità di servizio del debito. Un DSCR superiore a 1.0 anche negli scenari peggiori indica una buona tenuta finanziaria.
+          </p>
+        </div>
+      </div>
+
+      <!-- Financial Metrics Detail -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="ri-file-chart-line card-icon"></i>
+            Dettaglio Indicatori Economici
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-3" id="economic-metrics">
+            <!-- Metrics will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <!-- pdfmake for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.min.js"></script>
+
+  <script src="../js/main.js"></script>
+  <script src="../js/charts.js"></script>
+  <script src="../js/pdf-generator.js"></script>
+  <script src="../js/chatbot.js"></script>
+  <script>
+    // Page-specific initialization
+    document.addEventListener('DOMContentLoaded', async () => {
+      await report.init();
+      
+      if (report.data && report.data.charts) {
+        // Create Economic Trend Chart
+        chartsManager.createEconomicTrendChart('economic-trend-chart', report.data.charts.economicTrend);
+        
+        // Create Debt Sustainability Chart
+        chartsManager.createDebtSustainabilityChart('debt-sustainability-chart', report.data.charts.debtSustainability);
+        
+        // Create Working Capital Chart
+        chartsManager.createWorkingCapitalChart('working-capital-chart', report.data.charts.workingCapital);
+        
+        // Create Stress Test Chart
+        chartsManager.createStressTestChart('stress-test-chart', report.data.charts.stressTest);
+        
+        // Load economic metrics (reuse some key metrics)
+        const economicMetrics = document.getElementById('economic-metrics');
+        const metricsToShow = ['revenues', 'ebitda-margin', 'roe', 'cash-flow', 'pfn-ebitda', 'dscr'];
+        
+        report.data.keyMetrics
+          .filter(m => metricsToShow.includes(m.id))
+          .forEach(metric => {
+            economicMetrics.innerHTML += report.renderMetricCard(metric);
+          });
+      }
+    });
+  </script>
+</body>
+</html>

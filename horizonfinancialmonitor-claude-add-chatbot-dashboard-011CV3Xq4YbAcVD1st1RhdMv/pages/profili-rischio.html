@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horizon Financial Monitor | Profili di Rischio</title>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/chatbot.css">
+
+  <!-- RemixIcon -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="../index.html" class="logo" style="justify-content: center;">
+          <img src="../assets/images/logo.png" alt="Horizon Financial Monitor" class="logo-image">
+        </a>
+      </div>
+      
+      <nav>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="../index.html" class="nav-link">
+              <i class="nav-icon ri-dashboard-line"></i>
+              <span>Overview</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="analisi-economica.html" class="nav-link">
+              <i class="nav-icon ri-line-chart-line"></i>
+              <span>Analisi Economica</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="stato-patrimoniale.html" class="nav-link">
+              <i class="nav-icon ri-file-list-3-line"></i>
+              <span>Stato Patrimoniale</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="profilo-aziendale.html" class="nav-link">
+              <i class="nav-icon ri-building-line"></i>
+              <span>Profilo Aziendale</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="codice-crisi.html" class="nav-link">
+              <i class="nav-icon ri-shield-cross-line"></i>
+              <span>Codice della Crisi</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="profili-rischio.html" class="nav-link active">
+              <i class="nav-icon ri-radar-line"></i>
+              <span>Profili di Rischio</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title">Profili di Rischio</h1>
+        <p class="page-subtitle">Valutazione multidimensionale della situazione aziendale</p>
+      </div>
+
+      <!-- Profiles Grid -->
+      <div id="profiles-container" class="grid grid-2">
+        <!-- Will be populated -->
+      </div>
+
+      <!-- Charts Row -->
+      <div class="grid grid-2">
+        <!-- Benchmark Radar -->
+        <div class="chart-container">
+          <h3 class="card-title">
+            <i class="ri-radar-line card-icon"></i>
+            Benchmark Settoriale
+          </h3>
+          <div class="chart-wrapper">
+            <canvas id="benchmark-radar-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Rating Evolution -->
+        <div class="chart-container">
+          <h3 class="card-title">
+            <i class="ri-line-chart-line card-icon"></i>
+            Evoluzione Rating
+          </h3>
+          <div class="chart-wrapper">
+            <canvas id="rating-evolution-chart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Outlook -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="ri-eye-line card-icon"></i>
+            Outlook e Raccomandazioni
+          </h3>
+        </div>
+        <div class="card-body">
+          <div style="padding: var(--space-lg); background: var(--primary-light); border-radius: var(--radius-md); border-left: 4px solid var(--primary); margin-bottom: var(--space-lg);">
+            <p id="outlook-text" style="font-size: 15px; color: var(--gray-800); line-height: 1.7;">
+              <!-- Will be populated -->
+            </p>
+          </div>
+          
+          <h4 style="font-size: 16px; font-weight: 600; margin-bottom: var(--space-md);">Raccomandazioni</h4>
+          <ul id="recommendations-list" style="list-style: none; padding: 0;">
+            <!-- Will be populated -->
+          </ul>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <!-- pdfmake for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.min.js"></script>
+
+  <script src="../js/main.js"></script>
+  <script src="../js/pdf-generator.js"></script>
+  <script src="../js/charts.js"></script>
+  <script src="../js/chatbot.js"></script>
+  <script>
+    // Page-specific initialization
+    document.addEventListener('DOMContentLoaded', async () => {
+      await report.init();
+      
+      if (report.data && report.data.profiles) {
+        // Render profiles
+        const profilesContainer = document.getElementById('profiles-container');
+        report.data.profiles.forEach(profile => {
+          const scorePercentage = (profile.score / profile.maxScore) * 100;
+          const colorMap = {
+            'red': 'var(--danger)',
+            'green': 'var(--success)',
+            'yellow': 'var(--warning)'
+          };
+          
+          const trendIcons = {
+            'stable': '—',
+            'positive': '↗',
+            'strong-positive': '⬆',
+            'negative': '↘'
+          };
+          
+          profilesContainer.innerHTML += `
+            <div class="card">
+              <div style="margin-bottom: var(--space-lg);">
+                <h3 style="font-size: 18px; font-weight: 700; color: var(--gray-900); margin-bottom: var(--space-xs);">
+                  ${profile.name}
+                </h3>
+                <div style="display: inline-block; background: rgba(${profile.color === 'green' ? '0,217,36' : profile.color === 'red' ? '223,27,65' : '255,176,32'}, 0.1); color: ${colorMap[profile.color]}; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                  ${profile.evaluation}
+                </div>
+              </div>
+              
+              <div style="display: flex; align-items: center; gap: var(--space-lg); margin-bottom: var(--space-md);">
+                <div style="flex: 1;">
+                  <div style="height: 12px; background: var(--gray-200); border-radius: 6px; overflow: hidden;">
+                    <div style="height: 100%; background: ${colorMap[profile.color]}; width: ${scorePercentage}%; transition: width 0.5s ease;"></div>
+                  </div>
+                </div>
+                <div style="font-size: 24px; font-weight: 700; color: var(--gray-900);">
+                  ${profile.score}/${profile.maxScore}
+                </div>
+              </div>
+              
+              <div style="display: flex; align-items: center; gap: var(--space-xs); font-size: 14px; color: var(--gray-600);">
+                <span style="font-size: 18px;">${trendIcons[profile.trend.type]}</span>
+                <span>Trend: ${profile.trend.label}</span>
+              </div>
+            </div>
+          `;
+        });
+        
+        // Create Benchmark Radar Chart
+        if (report.data.charts && report.data.charts.benchmarkRadar) {
+          const ctx = document.getElementById('benchmark-radar-chart');
+          new Chart(ctx, {
+            type: 'radar',
+            data: {
+              labels: report.data.charts.benchmarkRadar.labels,
+              datasets: report.data.charts.benchmarkRadar.datasets.map(ds => ({
+                ...ds,
+                fill: true,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: ds.borderColor,
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+              }))
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                r: {
+                  min: 0,
+                  max: 5,
+                  ticks: {
+                    stepSize: 1,
+                    font: { size: 11 }
+                  },
+                  pointLabels: {
+                    font: { size: 12, weight: '500' }
+                  }
+                }
+              },
+              plugins: {
+                legend: {
+                  position: 'top',
+                  labels: {
+                    boxWidth: 12,
+                    boxHeight: 12,
+                    usePointStyle: true,
+                    padding: 15,
+                    font: { size: 13, weight: '500' }
+                  }
+                }
+              }
+            }
+          });
+        }
+        
+        // Create Rating Evolution Chart
+        if (report.data.charts && report.data.charts.ratingEvolution) {
+          const ctx = document.getElementById('rating-evolution-chart');
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: report.data.charts.ratingEvolution.labels,
+              datasets: report.data.charts.ratingEvolution.datasets.map(ds => ({
+                ...ds,
+                fill: true,
+                tension: 0.4,
+                borderWidth: 3,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: ds.borderColor,
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+              }))
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: {
+                intersect: false,
+                mode: 'index'
+              },
+              plugins: {
+                legend: {
+                  position: 'top',
+                  align: 'end',
+                  labels: {
+                    boxWidth: 12,
+                    boxHeight: 12,
+                    usePointStyle: true,
+                    padding: 20,
+                    font: { size: 13, weight: '500' }
+                  }
+                }
+              },
+              scales: {
+                y: {
+                  reverse: true,
+                  min: 1,
+                  max: 10,
+                  ticks: {
+                    stepSize: 1,
+                    callback: function(value) {
+                      const map = report.data.charts.ratingEvolution.ratingMap;
+                      return map[value] || value;
+                    }
+                  }
+                },
+                y1: {
+                  position: 'right',
+                  min: 1,
+                  max: 5,
+                  ticks: {
+                    stepSize: 1,
+                    callback: function(value) {
+                      const map = report.data.charts.ratingEvolution.scoreMap;
+                      return map[value] || value;
+                    }
+                  }
+                }
+              }
+            }
+          });
+        }
+        
+        // Render outlook
+        if (report.data.outlook) {
+          document.getElementById('outlook-text').textContent = report.data.outlook.outlook;
+          
+          const recList = document.getElementById('recommendations-list');
+          report.data.outlook.raccomandazioni.forEach(rec => {
+            recList.innerHTML += `
+              <li style="padding: var(--space-md); border-left: 3px solid var(--primary); margin-bottom: var(--space-sm); background: var(--gray-50); border-radius: var(--radius-sm);">
+                <span style="font-size: 14px; color: var(--gray-700); line-height: 1.6;">${rec}</span>
+              </li>
+            `;
+          });
+        }
+      }
+    });
+  </script>
+</body>
+</html>
