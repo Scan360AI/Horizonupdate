@@ -1015,6 +1015,69 @@ class PDFGenerator {
     return html;
   }
 
+  // Generate Financial KPI Cards (ROE, ROI, ROS, Liquidità)
+  generateFinancialKPICards() {
+    const stats = this.data.financialData?.stats || [];
+    const keyMetrics = this.data.keyMetrics || [];
+
+    // Trova i KPI
+    const roe = stats.find(s => s.id === 'roe');
+    const roi = stats.find(s => s.id === 'roi');
+    const ros = stats.find(s => s.id === 'ros');
+    const liquidity = keyMetrics.find(m => m.id === 'liquidity');
+
+    const kpis = [
+      { label: 'ROE', value: roe?.value || 'N/D', trend: roe?.trend?.value, color: '#635BFF' },
+      { label: 'ROI', value: roi?.value || 'N/D', trend: roi?.trend?.value, color: '#00D924' },
+      { label: 'ROS', value: ros?.value || 'N/D', trend: ros?.trend?.value, color: '#FFB020' },
+      { label: 'Liquidità', value: liquidity?.value || 'N/D', trend: null, color: '#DF1B41' }
+    ];
+
+    let html = '<div class="no-page-break" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 0 0 2rem 0;">';
+
+    kpis.forEach(kpi => {
+      html += '<div style="background: white; border-left: 4px solid ' + kpi.color + '; border-radius: 8px; padding: 1.25rem; box-shadow: 0 2px 6px rgba(50, 50, 93, 0.08);">';
+      html += '<div style="font-size: 8pt; color: #697386; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; font-weight: 600;">' + kpi.label + '</div>';
+      html += '<div style="font-size: 18pt; font-weight: 700; color: #1A1F36; letter-spacing: -0.02em;">' + kpi.value + '</div>';
+
+      if (kpi.trend !== undefined && kpi.trend !== null) {
+        const trendColor = kpi.trend > 0 ? '#00D924' : kpi.trend < 0 ? '#DF1B41' : '#697386';
+        const trendSymbol = kpi.trend > 0 ? '↑' : kpi.trend < 0 ? '↓' : '→';
+        html += '<div style="font-size: 8pt; font-weight: 600; color: ' + trendColor + '; margin-top: 0.5rem;">' + trendSymbol + ' ' + Math.abs(kpi.trend).toFixed(1) + '%</div>';
+      }
+
+      html += '</div>';
+    });
+
+    html += '</div>';
+    return html;
+  }
+
+  // Generate Risk KPI Cards (Rating, Score, Categoria)
+  generateRiskKPICards() {
+    const risk = this.data.riskAssessment;
+    if (!risk) return '';
+
+    const kpis = [
+      { label: 'Rating', value: risk.rating, sublabel: 'Precedente: ' + (risk.previousRating || 'N/D'), color: '#635BFF' },
+      { label: 'Score', value: risk.score + '/100', sublabel: 'Indice rischio', color: '#FFB020' },
+      { label: 'Categoria', value: risk.categoryLabel, sublabel: risk.category, color: risk.score > 70 ? '#DF1B41' : risk.score > 40 ? '#FFB020' : '#00D924' }
+    ];
+
+    let html = '<div class="no-page-break" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin: 0 0 2rem 0;">';
+
+    kpis.forEach(kpi => {
+      html += '<div style="background: white; border-left: 4px solid ' + kpi.color + '; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 6px rgba(50, 50, 93, 0.08);">';
+      html += '<div style="font-size: 8pt; color: #697386; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; font-weight: 600;">' + kpi.label + '</div>';
+      html += '<div style="font-size: 24pt; font-weight: 700; color: #1A1F36; letter-spacing: -0.02em; margin-bottom: 0.5rem;">' + kpi.value + '</div>';
+      html += '<div style="font-size: 8pt; color: #9AA5B8; font-weight: 500;">' + kpi.sublabel + '</div>';
+      html += '</div>';
+    });
+
+    html += '</div>';
+    return html;
+  }
+
   // Generate complete Executive Summary section
   generateExecutiveSummarySection() {
     let html = '';
@@ -1064,10 +1127,14 @@ class PDFGenerator {
       htmlContent += this.markdownToHTML(noteContent);
       htmlContent += '</div>';
 
-      // ===== 4. DATI FINANZIARI (Conto Economico + Stato Patrimoniale) =====
+      // ===== 4. DATI FINANZIARI (KPI Cards + Conto Economico + Stato Patrimoniale) =====
       htmlContent += '<div class="page-break-before" style="padding: 2rem;">';
       htmlContent += '<h2 style="font-size: 20pt; font-weight: 700; color: #635BFF; margin: 0 0 2rem 0; padding-bottom: 1rem; border-bottom: 3px solid #635BFF; letter-spacing: -0.02em;">Dati Finanziari</h2>';
 
+      // KPI Cards
+      htmlContent += this.generateFinancialKPICards();
+
+      // Tabelle
       htmlContent += this.generateContoEconomicoTable();
       htmlContent += this.generateStatoPatrimonialeTable();
 
@@ -1083,11 +1150,15 @@ class PDFGenerator {
         htmlContent += '</div>';
       }
 
-      // ===== 6. PROFILI DI RISCHIO (con barre di avanzamento) =====
+      // ===== 6. ANALISI DEL RISCHIO (KPI Cards + Risk Box + Profili) =====
       if (this.data.profiles && this.data.profiles.length > 0) {
         htmlContent += '<div class="page-break-before" style="padding: 2rem;">';
         htmlContent += '<h2 style="font-size: 20pt; font-weight: 700; color: #635BFF; margin: 0 0 2rem 0; padding-bottom: 1rem; border-bottom: 3px solid #635BFF; letter-spacing: -0.02em;">Analisi del Rischio</h2>';
 
+        // KPI Cards
+        htmlContent += this.generateRiskKPICards();
+
+        // Risk Box e Profili
         htmlContent += this.generateRiskBox();
         htmlContent += this.generateRiskProfilesBars();
 
