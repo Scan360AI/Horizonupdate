@@ -75,7 +75,12 @@ class PDFGenerator {
         }
       };
 
-      await html2pdf().set(opt).from(tempDiv.firstChild).save();
+      const reportContainer = tempDiv.querySelector('.report-container');
+      if (!reportContainer) {
+        throw new Error('Report container not found in generated HTML');
+      }
+
+      await html2pdf().set(opt).from(reportContainer).save();
 
       document.body.removeChild(tempDiv);
 
@@ -1244,7 +1249,15 @@ class PDFGenerator {
       };
 
       console.log('🚀 Chiamando html2pdf()...');
-      await html2pdf().set(opt).from(tempDiv.firstChild).save();
+
+      const reportContainer = tempDiv.querySelector('.report-container');
+      if (!reportContainer) {
+        console.error('❌ Report container non trovato! TempDiv children:', tempDiv.children);
+        throw new Error('Report container not found in generated HTML');
+      }
+
+      console.log('✅ Report container trovato:', reportContainer.tagName, reportContainer.className);
+      await html2pdf().set(opt).from(reportContainer).save();
 
       document.body.removeChild(tempDiv);
 
