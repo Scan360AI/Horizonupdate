@@ -890,7 +890,7 @@ class PDFGenerator {
 
     // STRENGTHS (top-left) - Green
     html += '<div style="background: linear-gradient(135deg, rgba(0, 217, 36, 0.08) 0%, rgba(0, 217, 36, 0.02) 100%); border: 2px solid rgba(0, 217, 36, 0.3); border-radius: 12px; padding: 1.5rem;">';
-    html += '<h4 style="font-size: 11pt; font-weight: 700; color: #00D924; margin: 0 0 1rem 0; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center;"><span style="font-size: 14pt; margin-right: 0.5rem;">💪</span> Strengths</h4>';
+    html += '<h4 style="font-size: 11pt; font-weight: 700; color: #00D924; margin: 0 0 1rem 0; text-transform: uppercase; letter-spacing: 0.5px;">Strengths</h4>';
     html += '<ul style="margin: 0; padding-left: 1.25rem; list-style: disc; color: #1A1F36; font-size: 9pt; line-height: 1.5;">';
     limitedStrengths.forEach(s => {
       html += '<li style="margin-bottom: 0.5rem;">' + s + '</li>';
@@ -899,7 +899,7 @@ class PDFGenerator {
 
     // WEAKNESSES (top-right) - Red
     html += '<div style="background: linear-gradient(135deg, rgba(223, 27, 65, 0.08) 0%, rgba(223, 27, 65, 0.02) 100%); border: 2px solid rgba(223, 27, 65, 0.3); border-radius: 12px; padding: 1.5rem;">';
-    html += '<h4 style="font-size: 11pt; font-weight: 700; color: #DF1B41; margin: 0 0 1rem 0; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center;"><span style="font-size: 14pt; margin-right: 0.5rem;">⚠️</span> Weaknesses</h4>';
+    html += '<h4 style="font-size: 11pt; font-weight: 700; color: #DF1B41; margin: 0 0 1rem 0; text-transform: uppercase; letter-spacing: 0.5px;">Weaknesses</h4>';
     html += '<ul style="margin: 0; padding-left: 1.25rem; list-style: disc; color: #1A1F36; font-size: 9pt; line-height: 1.5;">';
     limitedWeaknesses.forEach(w => {
       html += '<li style="margin-bottom: 0.5rem;">' + w + '</li>';
@@ -908,7 +908,7 @@ class PDFGenerator {
 
     // OPPORTUNITIES (bottom-left) - Blue
     html += '<div style="background: linear-gradient(135deg, rgba(99, 91, 255, 0.08) 0%, rgba(99, 91, 255, 0.02) 100%); border: 2px solid rgba(99, 91, 255, 0.3); border-radius: 12px; padding: 1.5rem;">';
-    html += '<h4 style="font-size: 11pt; font-weight: 700; color: #635BFF; margin: 0 0 1rem 0; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center;"><span style="font-size: 14pt; margin-right: 0.5rem;">🎯</span> Opportunities</h4>';
+    html += '<h4 style="font-size: 11pt; font-weight: 700; color: #635BFF; margin: 0 0 1rem 0; text-transform: uppercase; letter-spacing: 0.5px;">Opportunities</h4>';
     html += '<ul style="margin: 0; padding-left: 1.25rem; list-style: disc; color: #1A1F36; font-size: 9pt; line-height: 1.5;">';
     limitedOpportunities.forEach(o => {
       html += '<li style="margin-bottom: 0.5rem;">' + o + '</li>';
@@ -917,7 +917,7 @@ class PDFGenerator {
 
     // THREATS (bottom-right) - Orange
     html += '<div style="background: linear-gradient(135deg, rgba(255, 176, 32, 0.08) 0%, rgba(255, 176, 32, 0.02) 100%); border: 2px solid rgba(255, 176, 32, 0.3); border-radius: 12px; padding: 1.5rem;">';
-    html += '<h4 style="font-size: 11pt; font-weight: 700; color: #FFB020; margin: 0 0 1rem 0; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center;"><span style="font-size: 14pt; margin-right: 0.5rem;">⚡</span> Threats</h4>';
+    html += '<h4 style="font-size: 11pt; font-weight: 700; color: #FFB020; margin: 0 0 1rem 0; text-transform: uppercase; letter-spacing: 0.5px;">Threats</h4>';
     html += '<ul style="margin: 0; padding-left: 1.25rem; list-style: disc; color: #1A1F36; font-size: 9pt; line-height: 1.5;">';
     limitedThreats.forEach(t => {
       html += '<li style="margin-bottom: 0.5rem;">' + t + '</li>';
@@ -925,6 +925,92 @@ class PDFGenerator {
     html += '</ul></div>';
 
     html += '</div></div>';
+
+    return html;
+  }
+
+  // Generate Codice della Crisi section with visual indicators
+  generateCodiceCrisiSection() {
+    const crisi = this.data.codiceCrisi;
+    if (!crisi || !crisi.indices) return '';
+
+    let html = '';
+
+    // Status overview card
+    const statusColor = crisi.status.overall === 'OK' ? '#00D924' : crisi.status.overall === 'ALLERTA' ? '#FFB020' : '#DF1B41';
+    const statusBg = crisi.status.overall === 'OK' ? 'rgba(0, 217, 36, 0.08)' : crisi.status.overall === 'ALLERTA' ? 'rgba(255, 176, 32, 0.08)' : 'rgba(223, 27, 65, 0.08)';
+
+    html += '<div class="no-page-break" style="background: ' + statusBg + '; border: 2px solid ' + statusColor + '; border-radius: 12px; padding: 1.75rem; margin-bottom: 2rem;">';
+    html += '<div style="display: flex; align-items: center; justify-content: space-between;">';
+    html += '<div>';
+    html += '<div style="font-size: 13pt; font-weight: 700; color: #1A1F36; margin-bottom: 0.5rem; letter-spacing: -0.01em;">Status Codice della Crisi</div>';
+    html += '<div style="font-size: 9pt; color: #697386; font-weight: 500;">' + crisi.status.indiciOk + ' indici OK • ' + crisi.status.indiciAllerta + ' in allerta • ' + crisi.status.indiciMancanti + ' non disponibili</div>';
+    html += '</div>';
+    html += '<div style="font-size: 32pt; font-weight: 700; color: ' + statusColor + ';">' + crisi.status.overall + '</div>';
+    html += '</div>';
+    html += '</div>';
+
+    // Tabella indici
+    html += '<div class="table-wrapper no-page-break">';
+    html += '<table style="width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(50, 50, 93, 0.08); border-radius: 8px; overflow: hidden; font-size: 9pt;">';
+
+    // Header
+    html += '<thead>';
+    html += '<tr style="background: #635BFF; color: white;">';
+    html += '<th style="padding: 0.9rem 1rem; text-align: center; font-weight: 600; font-size: 9pt; width: 40px;">#</th>';
+    html += '<th style="padding: 0.9rem 1rem; text-align: left; font-weight: 600; font-size: 9pt;">Indice</th>';
+    html += '<th style="padding: 0.9rem 1rem; text-align: center; font-weight: 600; font-size: 9pt;">Valore</th>';
+    html += '<th style="padding: 0.9rem 1rem; text-align: center; font-weight: 600; font-size: 9pt;">Soglia</th>';
+    html += '<th style="padding: 0.9rem 1rem; text-align: center; font-weight: 600; font-size: 9pt;">Status</th>';
+    html += '</tr>';
+    html += '</thead>';
+
+    // Body
+    html += '<tbody>';
+
+    crisi.indices.forEach((idx, i) => {
+      const rowBg = i % 2 === 0 ? '#FAFBFC' : 'white';
+      const statusColor = idx.status === 'OK' ? '#00D924' : idx.status === 'ALLERTA' ? '#FFB020' : '#DF1B41';
+      const statusBg = idx.status === 'OK' ? 'rgba(0, 217, 36, 0.12)' : idx.status === 'ALLERTA' ? 'rgba(255, 176, 32, 0.12)' : 'rgba(223, 27, 65, 0.12)';
+
+      html += '<tr style="background: ' + rowBg + '; border-bottom: 1px solid #F1F3F5;">';
+
+      // Numero
+      html += '<td style="padding: 0.8rem 1rem; text-align: center; font-weight: 700; color: #635BFF;">' + idx.number + '</td>';
+
+      // Nome + Descrizione
+      html += '<td style="padding: 0.8rem 1rem;">';
+      html += '<div style="font-weight: 600; font-size: 9.5pt; color: #1A1F36; margin-bottom: 0.25rem;">' + idx.name + '</div>';
+      html += '<div style="font-size: 8pt; color: #697386;">' + idx.description + '</div>';
+      html += '</td>';
+
+      // Valore
+      html += '<td style="padding: 0.8rem 1rem; text-align: center;">';
+      html += '<div style="font-weight: 600; font-size: 9.5pt; color: #1A1F36;">' + idx.value + '</div>';
+      if (idx.detail) {
+        html += '<div style="font-size: 7.5pt; color: #9AA5B8; margin-top: 0.2rem;">' + idx.detail + '</div>';
+      }
+      html += '</td>';
+
+      // Soglia
+      html += '<td style="padding: 0.8rem 1rem; text-align: center;">';
+      html += '<div style="font-weight: 600; font-size: 9.5pt; color: #4F566B;">' + idx.soglia + '</div>';
+      if (idx.sogliaNote) {
+        html += '<div style="font-size: 7.5pt; color: #9AA5B8; margin-top: 0.2rem;">' + idx.sogliaNote + '</div>';
+      }
+      html += '</td>';
+
+      // Status badge
+      html += '<td style="padding: 0.8rem 1rem; text-align: center;">';
+      html += '<div style="display: inline-block; padding: 0.4rem 0.8rem; background: ' + statusBg + '; color: ' + statusColor + '; border-radius: 6px; font-size: 8pt; font-weight: 700; letter-spacing: 0.02em;">' + idx.status + '</div>';
+      html += '</td>';
+
+      html += '</tr>';
+    });
+
+    html += '</tbody>';
+    html += '</table>';
+    html += '</div>';
 
     return html;
   }
@@ -987,7 +1073,17 @@ class PDFGenerator {
 
       htmlContent += '</div>';
 
-      // ===== 5. PROFILI DI RISCHIO (con barre di avanzamento) =====
+      // ===== 5. CODICE DELLA CRISI D'IMPRESA =====
+      if (this.data.codiceCrisi && this.data.codiceCrisi.indices) {
+        htmlContent += '<div class="page-break-before" style="padding: 2rem;">';
+        htmlContent += '<h2 style="font-size: 20pt; font-weight: 700; color: #635BFF; margin: 0 0 2rem 0; padding-bottom: 1rem; border-bottom: 3px solid #635BFF; letter-spacing: -0.02em;">Codice della Crisi d\'Impresa</h2>';
+
+        htmlContent += this.generateCodiceCrisiSection();
+
+        htmlContent += '</div>';
+      }
+
+      // ===== 6. PROFILI DI RISCHIO (con barre di avanzamento) =====
       if (this.data.profiles && this.data.profiles.length > 0) {
         htmlContent += '<div class="page-break-before" style="padding: 2rem;">';
         htmlContent += '<h2 style="font-size: 20pt; font-weight: 700; color: #635BFF; margin: 0 0 2rem 0; padding-bottom: 1rem; border-bottom: 3px solid #635BFF; letter-spacing: -0.02em;">Analisi del Rischio</h2>';
@@ -998,7 +1094,7 @@ class PDFGenerator {
         htmlContent += '</div>';
       }
 
-      // ===== 6. GRAFICI DI SUPPORTO =====
+      // ===== 7. GRAFICI DI SUPPORTO =====
       if (chartImages && Object.keys(chartImages).length > 0) {
         htmlContent += '<div class="page-break-before" style="padding: 2rem;">';
         htmlContent += '<h2 style="font-size: 20pt; font-weight: 700; color: #635BFF; margin: 0 0 2rem 0; padding-bottom: 1rem; border-bottom: 3px solid #635BFF; letter-spacing: -0.02em;">Grafici di Supporto</h2>';
