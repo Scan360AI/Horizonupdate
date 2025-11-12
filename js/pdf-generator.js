@@ -186,6 +186,249 @@ class PDFGenerator {
     }
   }
 
+  // ===========================
+  // HELPER METHODS FOR CUSTOM NOTE
+  // ===========================
+
+  /**
+   * Genera SWOT Analysis per pdfmake
+   */
+  generateSWOTPdfMake() {
+    if (!this.data.executiveSummary) return [];
+
+    const strengths = (this.data.executiveSummary.strengths || []).slice(0, 4);
+    const weaknesses = (this.data.executiveSummary.weaknesses || []).slice(0, 4);
+
+    // Deriva opportunities e threats
+    const opportunities = [];
+    const threats = [];
+
+    if (this.data.outlook && this.data.outlook.raccomandazioni) {
+      this.data.outlook.raccomandazioni.forEach(r => {
+        if (r.includes('miglioramento') || r.includes('rafforzamento') || r.includes('opportunità')) {
+          opportunities.push(r);
+        } else {
+          threats.push(r);
+        }
+      });
+    }
+
+    if (opportunities.length === 0) {
+      opportunities.push('Potenziale di crescita del mercato IT', 'Espansione della base clienti');
+    }
+    if (threats.length === 0) {
+      threats.push('Alta competitività del settore', 'Dipendenza dalla congiuntura economica');
+    }
+
+    const limitedOpp = opportunities.slice(0, 4);
+    const limitedThreats = threats.slice(0, 4);
+
+    return [
+      { text: 'Analisi SWOT', style: 'h2', pageBreak: 'before', margin: [0, 0, 0, 20] },
+      {
+        columns: [
+          {
+            width: '48%',
+            stack: [
+              {
+                text: 'STRENGTHS',
+                fontSize: 11,
+                bold: true,
+                color: '#00D924',
+                margin: [0, 0, 0, 10]
+              },
+              {
+                ul: strengths.map(s => ({ text: s, fontSize: 9, margin: [0, 0, 0, 5] })),
+                color: '#1A1F36'
+              }
+            ],
+            fillColor: 'rgba(0, 217, 36, 0.08)',
+            margin: [0, 0, 10, 0]
+          },
+          {
+            width: '48%',
+            stack: [
+              {
+                text: 'WEAKNESSES',
+                fontSize: 11,
+                bold: true,
+                color: '#DF1B41',
+                margin: [0, 0, 0, 10]
+              },
+              {
+                ul: weaknesses.map(w => ({ text: w, fontSize: 9, margin: [0, 0, 0, 5] })),
+                color: '#1A1F36'
+              }
+            ],
+            fillColor: 'rgba(223, 27, 65, 0.08)',
+            margin: [10, 0, 0, 0]
+          }
+        ],
+        columnGap: 10,
+        margin: [0, 0, 0, 10]
+      },
+      {
+        columns: [
+          {
+            width: '48%',
+            stack: [
+              {
+                text: 'OPPORTUNITIES',
+                fontSize: 11,
+                bold: true,
+                color: '#635BFF',
+                margin: [0, 0, 0, 10]
+              },
+              {
+                ul: limitedOpp.map(o => ({ text: o, fontSize: 9, margin: [0, 0, 0, 5] })),
+                color: '#1A1F36'
+              }
+            ],
+            fillColor: 'rgba(99, 91, 255, 0.08)',
+            margin: [0, 0, 10, 0]
+          },
+          {
+            width: '48%',
+            stack: [
+              {
+                text: 'THREATS',
+                fontSize: 11,
+                bold: true,
+                color: '#FFB020',
+                margin: [0, 0, 0, 10]
+              },
+              {
+                ul: limitedThreats.map(t => ({ text: t, fontSize: 9, margin: [0, 0, 0, 5] })),
+                color: '#1A1F36'
+              }
+            ],
+            fillColor: 'rgba(255, 176, 32, 0.08)',
+            margin: [10, 0, 0, 0]
+          }
+        ],
+        columnGap: 10,
+        margin: [0, 0, 0, 30]
+      }
+    ];
+  }
+
+  /**
+   * Genera card KPI Finanziari per pdfmake
+   */
+  generateFinancialKPIPdfMake() {
+    const stats = this.data.financialData?.stats || [];
+    const keyMetrics = this.data.keyMetrics || [];
+
+    const roe = stats.find(s => s.id === 'roe');
+    const roi = stats.find(s => s.id === 'roi');
+    const ros = stats.find(s => s.id === 'ros');
+    const liquidity = keyMetrics.find(m => m.id === 'liquidity');
+
+    const kpis = [
+      { label: 'ROE', value: roe?.value || 'N/D', trend: roe?.trend?.value },
+      { label: 'ROI', value: roi?.value || 'N/D', trend: roi?.trend?.value },
+      { label: 'ROS', value: ros?.value || 'N/D', trend: ros?.trend?.value },
+      { label: 'Liquidità', value: liquidity?.value || 'N/D', trend: null }
+    ];
+
+    return {
+      columns: kpis.map(kpi => ({
+        width: '23%',
+        stack: [
+          { text: kpi.label, fontSize: 8, color: '#697386', bold: true, margin: [0, 0, 0, 5] },
+          { text: kpi.value, fontSize: 16, bold: true, color: '#1A1F36', margin: [0, 0, 0, 3] },
+          kpi.trend !== undefined && kpi.trend !== null ?
+            {
+              text: `${kpi.trend > 0 ? '↑' : '↓'} ${Math.abs(kpi.trend).toFixed(1)}%`,
+              fontSize: 8,
+              color: kpi.trend > 0 ? '#00D924' : '#DF1B41',
+              bold: true
+            } : {}
+        ],
+        fillColor: '#f8fafc',
+        margin: [5, 10, 5, 10]
+      })),
+      columnGap: 10,
+      margin: [0, 0, 0, 20]
+    };
+  }
+
+  /**
+   * Genera Codice della Crisi per pdfmake
+   */
+  generateCodiceCrisiPdfMake() {
+    const crisi = this.data.codiceCrisi;
+    if (!crisi || !crisi.indices) return [];
+
+    const statusColor = crisi.status.overall === 'OK' ? '#00D924' : crisi.status.overall === 'ALLERTA' ? '#FFB020' : '#DF1B41';
+
+    const tableBody = [
+      [
+        { text: '#', style: 'tableHeader', alignment: 'center' },
+        { text: 'Indice', style: 'tableHeader' },
+        { text: 'Valore', style: 'tableHeader', alignment: 'center' },
+        { text: 'Soglia', style: 'tableHeader', alignment: 'center' },
+        { text: 'Status', style: 'tableHeader', alignment: 'center' }
+      ]
+    ];
+
+    crisi.indices.forEach(idx => {
+      const statusColor = idx.status === 'OK' ? '#00D924' : idx.status === 'ALLERTA' ? '#FFB020' : '#DF1B41';
+
+      tableBody.push([
+        { text: idx.number.toString(), alignment: 'center', bold: true, color: '#635BFF', fontSize: 9 },
+        {
+          stack: [
+            { text: idx.name, bold: true, fontSize: 9 },
+            { text: idx.description, fontSize: 8, color: '#697386', margin: [0, 2, 0, 0] }
+          ]
+        },
+        {
+          stack: [
+            { text: idx.value, bold: true, fontSize: 9 },
+            idx.detail ? { text: idx.detail, fontSize: 7, color: '#9AA5B8', margin: [0, 2, 0, 0] } : {}
+          ],
+          alignment: 'center'
+        },
+        {
+          stack: [
+            { text: idx.soglia, bold: true, fontSize: 9 },
+            idx.sogliaNote ? { text: idx.sogliaNote, fontSize: 7, color: '#9AA5B8', margin: [0, 2, 0, 0] } : {}
+          ],
+          alignment: 'center'
+        },
+        { text: idx.status, alignment: 'center', bold: true, fontSize: 8, color: statusColor }
+      ]);
+    });
+
+    return [
+      { text: 'Codice della Crisi d\'Impresa', style: 'h2', pageBreak: 'before', margin: [0, 0, 0, 15] },
+      {
+        text: [
+          { text: 'Status: ', fontSize: 10, bold: true },
+          { text: crisi.status.overall, fontSize: 12, bold: true, color: statusColor },
+          { text: ` (${crisi.status.indiciOk} OK, ${crisi.status.indiciAllerta} in allerta)`, fontSize: 9, color: '#697386' }
+        ],
+        margin: [0, 0, 0, 15]
+      },
+      {
+        table: {
+          headerRows: 1,
+          widths: [30, '*', 'auto', 'auto', 60],
+          body: tableBody
+        },
+        layout: {
+          fillColor: (rowIndex) => (rowIndex === 0 ? '#635BFF' : rowIndex % 2 === 0 ? '#FAFBFC' : null),
+          hLineWidth: () => 0.5,
+          vLineWidth: () => 0.5,
+          hLineColor: () => '#e2e8f0',
+          vLineColor: () => '#e2e8f0'
+        },
+        margin: [0, 0, 0, 20]
+      }
+    ];
+  }
+
   /**
    * Genera nota personalizzata basata su conversazione
    */
@@ -260,8 +503,21 @@ class PDFGenerator {
           margin: [0, 0, 0, 30]
         },
 
-        // Contenuto della nota (convertito da markdown con grafici)
+        // ===== SWOT ANALYSIS =====
+        ...this.generateSWOTPdfMake(),
+
+        // ===== CONTENUTO AI-GENERATED =====
+        { text: noteTitle || 'Analisi', style: 'h2', pageBreak: 'before', margin: [0, 0, 0, 15] },
         ...this.parseMarkdownToPDFContent(noteContent, chartImages),
+
+        // ===== DATI FINANZIARI =====
+        { text: 'Dati Finanziari', style: 'h2', pageBreak: 'before', margin: [0, 0, 0, 15] },
+        this.generateFinancialKPIPdfMake(),
+        ...this.generateContoEconomicoTable(),
+        ...this.generateStatoPatrimonialeTable(),
+
+        // ===== CODICE DELLA CRISI =====
+        ...this.generateCodiceCrisiPdfMake(),
 
         // Disclaimer elegante
         { text: '', margin: [0, 40, 0, 0] },
