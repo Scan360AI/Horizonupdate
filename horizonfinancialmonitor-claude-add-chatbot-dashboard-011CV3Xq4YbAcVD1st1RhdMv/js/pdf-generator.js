@@ -843,7 +843,7 @@ class PDFGenerator {
   // Legacy method for custom note generation
   // ===========================
 
-  async generateCustomNote(noteContent, title) {
+  async generateCustomNote(noteContent, title, chartImages = null) {
     const noteTitle = title || 'Nota Tecnica';
 
     try {
@@ -851,7 +851,7 @@ class PDFGenerator {
 
       let htmlContent = '<html><head>' +
         '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">' +
-        '<style>body { font-family: "Inter", sans-serif; color: #1A1F36; font-size: 10.5pt; line-height: 1.6; padding: 2rem; }</style>' +
+        '<style>' + this.getStylesheet() + '</style>' +
         '</head><body>';
 
       htmlContent += '<div style="text-align: center; margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 2px solid #635BFF;">';
@@ -864,7 +864,31 @@ class PDFGenerator {
       htmlContent += '<div style="font-size: 10pt; color: #697386; margin-top: 0.75rem; font-weight: 500;">' + this.getFormattedDate() + '</div>';
       htmlContent += '</div>';
 
+      htmlContent += '<div style="padding: 0 2rem;">';
       htmlContent += this.markdownToHTML(noteContent);
+
+      // Aggiungi grafici se disponibili
+      if (chartImages && Object.keys(chartImages).length > 0) {
+        htmlContent += '<h2 style="font-size: 18pt; font-weight: 700; color: #1A1F36; margin: 3rem 0 1.5rem 0; padding-top: 2rem; border-top: 2px solid #E3E8EE; letter-spacing: -0.02em;">Grafici di Supporto</h2>';
+
+        if (chartImages.economicTrend) {
+          htmlContent += this.wrapChartInContainer(chartImages.economicTrend, 'Trend Economico 2022-2024');
+        }
+        if (chartImages.debtSustainability) {
+          htmlContent += this.wrapChartInContainer(chartImages.debtSustainability, 'Sostenibilità del Debito');
+        }
+        if (chartImages.workingCapital) {
+          htmlContent += this.wrapChartInContainer(chartImages.workingCapital, 'Gestione Capitale Circolante');
+        }
+        if (chartImages.stressTest) {
+          htmlContent += this.wrapChartInContainer(chartImages.stressTest, 'Analisi Stress Test');
+        }
+        if (chartImages.benchmarkRadar) {
+          htmlContent += this.wrapChartInContainer(chartImages.benchmarkRadar, 'Benchmark Settoriale');
+        }
+      }
+
+      htmlContent += '</div>';
       htmlContent += '</body></html>';
 
       const tempDiv = document.createElement('div');
