@@ -1,12 +1,73 @@
 // ===========================
 // PDF GENERATOR MODULE
-// Using html2pdf.js for elegant PDF generation with CSS styling
+// Using Puppeteer service for high-quality PDF generation
 // ===========================
 
 class PDFGenerator {
   constructor(financialData) {
     this.data = financialData;
     this.logoBase64 = null;
+    this.pdfServiceUrl = 'http://localhost:3001'; // URL servizio Puppeteer locale
+  }
+
+  // Helper: Generate PDF using Puppeteer service
+  async generatePDFFromHTML(html, filename) {
+    try {
+      console.log('🚀 Chiamata servizio Puppeteer...');
+
+      const response = await fetch(`${this.pdfServiceUrl}/generate-pdf`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          html: html,
+          filename: filename,
+          options: {
+            format: 'A4',
+            margin: {
+              top: '20mm',
+              right: '15mm',
+              bottom: '20mm',
+              left: '15mm'
+            },
+            printBackground: true,
+            preferCSSPageSize: false
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`PDF service error: ${response.status} ${response.statusText}`);
+      }
+
+      const blob = await response.blob();
+
+      // Download del PDF
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      console.log('✅ PDF scaricato con successo:', filename);
+      return true;
+
+    } catch (error) {
+      console.error('❌ Errore chiamata servizio PDF:', error);
+
+      // Fallback user-friendly
+      if (error.message.includes('Failed to fetch')) {
+        alert('⚠️ Servizio PDF non disponibile.\n\nAssicurati che il server Puppeteer sia avviato:\n\ncd pdf-service\nnpm start');
+      } else {
+        alert('Errore durante la generazione del PDF: ' + error.message);
+      }
+
+      throw error;
+    }
   }
 
   // Load logo as base64
@@ -31,58 +92,20 @@ class PDFGenerator {
     });
   }
 
-  // Main method: Generate professional report with html2pdf
+  // Main method: Generate professional report with Puppeteer
   async generateProfessionalReport(aiContent, chartImages = null) {
     try {
-      console.log('📄 Generating professional report with html2pdf...');
+      console.log('📄 Generating professional report with Puppeteer...');
       await this.loadLogo();
 
       const sections = this.parseSections(aiContent);
       const htmlContent = this.buildReportHTML(sections, chartImages);
 
-      // Create temporary container
-      const tempDiv = document.createElement('div');
-      tempDiv.style.cssText = 'position: absolute; left: -9999px; top: 0;';
-      tempDiv.innerHTML = htmlContent;
-      document.body.appendChild(tempDiv);
-
       const companyNameSlug = this.data.company.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
       const filename = 'report-' + companyNameSlug + '-' + this.getCurrentDate() + '.pdf';
 
-      // Configure html2pdf with better settings
-      const opt = {
-        margin: [20, 15, 20, 15],
-        filename: filename,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          letterRendering: true,
-          allowTaint: true
-        },
-        jsPDF: {
-          unit: 'mm',
-          format: 'a4',
-          orientation: 'portrait',
-          compress: true
-        },
-        pagebreak: {
-          mode: ['avoid-all', 'css', 'legacy'],
-          before: '.page-break-before',
-          after: '.page-break-after',
-          avoid: '.no-page-break'
-        }
-      };
-
-      const reportContainer = tempDiv.querySelector('.report-container');
-      if (!reportContainer) {
-        throw new Error('Report container not found in generated HTML');
-      }
-
-      await html2pdf().set(opt).from(reportContainer).save();
-
-      document.body.removeChild(tempDiv);
+      // Usa servizio Puppeteer per generare PDF di alta qualità
+      await this.generatePDFFromHTML(htmlContent, filename);
 
       console.log('✅ Professional report generated successfully');
     } catch (error) {
@@ -1205,61 +1228,12 @@ class PDFGenerator {
       htmlContent += '</div></body></html>';
 
       console.log('📝 HTML Content length:', htmlContent.length);
-      console.log('📝 HTML Preview (first 500 chars):', htmlContent.substring(0, 500));
-
-      // Crea elemento temporaneo per il rendering
-      const tempDiv = document.createElement('div');
-      tempDiv.style.cssText = 'position: absolute; left: -9999px; top: 0;';
-      tempDiv.innerHTML = htmlContent;
-      document.body.appendChild(tempDiv);
-
-      console.log('📦 TempDiv childNodes:', tempDiv.childNodes.length);
-      console.log('📦 TempDiv firstChild:', tempDiv.firstChild);
-      console.log('📦 TempDiv innerHTML length:', tempDiv.innerHTML.length);
 
       const companyNameSlug = this.data.company.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
       const filename = 'nota-' + companyNameSlug + '-' + this.getCurrentDate() + '.pdf';
 
-      console.log('📄 Filename:', filename);
-
-      // Configura html2pdf con impostazioni ottimizzate
-      const opt = {
-        margin: [20, 15, 20, 15],
-        filename: filename,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          logging: true,  // ABILITO LOG
-          letterRendering: true,
-          allowTaint: true
-        },
-        jsPDF: {
-          unit: 'mm',
-          format: 'a4',
-          orientation: 'portrait',
-          compress: true
-        },
-        pagebreak: {
-          mode: ['avoid-all', 'css', 'legacy'],
-          before: '.page-break-before',
-          after: '.page-break-after',
-          avoid: '.no-page-break'
-        }
-      };
-
-      console.log('🚀 Chiamando html2pdf()...');
-
-      const reportContainer = tempDiv.querySelector('.report-container');
-      if (!reportContainer) {
-        console.error('❌ Report container non trovato! TempDiv children:', tempDiv.children);
-        throw new Error('Report container not found in generated HTML');
-      }
-
-      console.log('✅ Report container trovato:', reportContainer.tagName, reportContainer.className);
-      await html2pdf().set(opt).from(reportContainer).save();
-
-      document.body.removeChild(tempDiv);
+      // Usa servizio Puppeteer per generare PDF di alta qualità
+      await this.generatePDFFromHTML(htmlContent, filename);
 
       console.log('✅✅✅ Custom note generated successfully');
     } catch (error) {
