@@ -1105,8 +1105,14 @@ class PDFGenerator {
   async generateCustomNote(noteContent, title, chartImages = null) {
     const noteTitle = title || 'Nota Finanziaria';
 
+    console.log('🔥🔥🔥 generateCustomNote HTML2PDF - VERSIONE CON SWOT/CRISI/KPI');
+    console.log('Titolo:', noteTitle);
+    console.log('Contenuto length:', noteContent?.length);
+    console.log('ChartImages:', chartImages ? Object.keys(chartImages) : null);
+
     try {
       await this.loadLogo();
+      console.log('✅ Logo caricato:', this.logoBase64 ? 'OK' : 'MANCANTE');
 
       // Costruisci HTML con nuovo layout professionale
       let htmlContent = '<html><head>' +
@@ -1191,14 +1197,23 @@ class PDFGenerator {
 
       htmlContent += '</div></body></html>';
 
+      console.log('📝 HTML Content length:', htmlContent.length);
+      console.log('📝 HTML Preview (first 500 chars):', htmlContent.substring(0, 500));
+
       // Crea elemento temporaneo per il rendering
       const tempDiv = document.createElement('div');
       tempDiv.style.cssText = 'position: absolute; left: -9999px; top: 0;';
       tempDiv.innerHTML = htmlContent;
       document.body.appendChild(tempDiv);
 
+      console.log('📦 TempDiv childNodes:', tempDiv.childNodes.length);
+      console.log('📦 TempDiv firstChild:', tempDiv.firstChild);
+      console.log('📦 TempDiv innerHTML length:', tempDiv.innerHTML.length);
+
       const companyNameSlug = this.data.company.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
       const filename = 'nota-' + companyNameSlug + '-' + this.getCurrentDate() + '.pdf';
+
+      console.log('📄 Filename:', filename);
 
       // Configura html2pdf con impostazioni ottimizzate
       const opt = {
@@ -1208,7 +1223,7 @@ class PDFGenerator {
         html2canvas: {
           scale: 2,
           useCORS: true,
-          logging: false,
+          logging: true,  // ABILITO LOG
           letterRendering: true,
           allowTaint: true
         },
@@ -1226,11 +1241,12 @@ class PDFGenerator {
         }
       };
 
+      console.log('🚀 Chiamando html2pdf()...');
       await html2pdf().set(opt).from(tempDiv.firstChild).save();
 
       document.body.removeChild(tempDiv);
 
-      console.log('✅ Custom note generated successfully');
+      console.log('✅✅✅ Custom note generated successfully');
     } catch (error) {
       console.error('❌ Error generating custom note:', error);
       throw error;
