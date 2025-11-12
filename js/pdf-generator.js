@@ -390,10 +390,11 @@ class PDFGenerator {
       // Add special content based on section
       if (sectionLower.includes('executive summary')) {
         html += this.generateKeyMetricsBoxes();
-        html += this.generateSummaryCards();
+        html += this.generateSWOTAnalysis();
       }
 
-      if (sectionLower.includes('analisi economica') || sectionLower.includes('conto economico')) {
+      if (sectionLower.includes('analisi economica') || sectionLower.includes('conto economico') || sectionLower.includes('dati finanziari')) {
+        html += this.generateFinancialKPICards();
         html += this.generateContoEconomicoTable();
         if (chartImages && chartImages.economicTrend) {
           html += this.wrapChartInContainer(chartImages.economicTrend, 'Trend Economico 2022-2024');
@@ -416,7 +417,8 @@ class PDFGenerator {
         }
       }
 
-      if (sectionLower.includes('risk assessment') || sectionLower.includes('rischio')) {
+      if (sectionLower.includes('risk assessment') || sectionLower.includes('rischio') || sectionLower.includes('valutazione del rischio')) {
+        html += this.generateRiskKPICards();
         html += this.generateRiskBox();
         html += this.generateRiskProfilesBars();
         if (chartImages && chartImages.benchmarkRadar) {
@@ -425,7 +427,7 @@ class PDFGenerator {
       }
 
       if (sectionLower.includes('codice della crisi')) {
-        html += this.generateCodiceCrisiIndicators();
+        html += this.generateCodiceCrisiSection();
       }
 
       // Add AI-generated content
